@@ -28,23 +28,15 @@ func task01(numbers []int) (result int) {
 			result++
 		}
 	}
-
 	return result
 }
 
 func task02(numbers []int) (result int) {
 
-	if len(numbers) < 3 {
-		return 0
-	}
-	sumLastWindow := numbers[0] + numbers[1] + numbers[2]
-
 	for i := 3; i < len(numbers); i++ {
-		sumCurrentWindow := numbers[i-2] + numbers[i-1] + numbers[i]
-		if sumLastWindow < sumCurrentWindow {
+		if numbers[i] > numbers[i-3] {
 			result++
 		}
-		sumLastWindow = sumCurrentWindow
 	}
 	return result
 }
