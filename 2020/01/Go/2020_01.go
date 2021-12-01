@@ -33,13 +33,14 @@ func returnSliceOfIntsFromFile(filePath string) (sliceOfLines []int) {
 	lines := make([]int, 0)
 	// Read through 'tokens' until an EOF is encountered.
 	for sc.Scan() {
+		// TODO Error handling Atoi
 		number, _ := strconv.Atoi(sc.Text())
 
 		lines = append(lines, number)
 	}
 
 	if err := sc.Err(); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	return lines

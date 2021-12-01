@@ -22,7 +22,6 @@ func main() {
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	// https://stackoverflow.com/questions/8757389/reading-a-file-line-by-line-in-go
 	file, err := os.Open(filePath)
-	// file, err := os.Open(`d:\1. Synced\Mega\2. Resources\Projects\AoC\2020\02\inputSmall.txt`)
 
 	if err != nil {
 		log.Panic(err)
@@ -37,7 +36,7 @@ func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	}
 
 	if err := sc.Err(); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	return lines
@@ -46,10 +45,12 @@ func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 func splitLine(line string) (firstNumber int, secondNumber int,
 	char rune, password string) {
 
+	// Example line: 5-6 v: hvvgvrm
 	lineSplit := strings.Split(line, " ") // should be 3
-	bounds := strings.Split(lineSplit[0], "-")
-	firstNumber, _ = strconv.Atoi(bounds[0])
-	secondNumber, _ = strconv.Atoi(bounds[1])
+	numbers := strings.Split(lineSplit[0], "-")
+	// TODO: Error handling
+	firstNumber, _ = strconv.Atoi(numbers[0])
+	secondNumber, _ = strconv.Atoi(numbers[1])
 
 	// use if there are multi-byte unicode chars
 	for _, r := range lineSplit[1] {
