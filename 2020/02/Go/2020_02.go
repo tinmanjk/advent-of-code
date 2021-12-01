@@ -61,7 +61,7 @@ func splitLine(line string) (firstNumber int, secondNumber int,
 	return
 }
 
-func task01(lines []string) (valid int) {
+func task01(lines []string) (countValid int) {
 
 	for _, line := range lines {
 
@@ -75,14 +75,14 @@ func task01(lines []string) (valid int) {
 		}
 
 		if count >= lowerBound && count <= upperBound {
-			valid++
+			countValid++
 		}
 	}
 
-	return valid
+	return countValid
 }
 
-func task02(lines []string) (valid int) {
+func task02(lines []string) (countValid int) {
 
 	for _, line := range lines {
 
@@ -102,9 +102,9 @@ func task02(lines []string) (valid int) {
 		}
 
 		if count == 1 {
-			valid++
+			countValid++
 		}
 	}
 
-	return valid
+	return countValid
 }
