@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const inputPath = "../input.txt"
@@ -34,7 +35,7 @@ func returnSliceOfIntsFromFile(filePath string) (sliceOfLines []int) {
 	// Read through 'tokens' until an EOF is encountered.
 	for sc.Scan() {
 		// TODO better Error handling Atoi
-		number, err := strconv.Atoi(sc.Text())
+		number, err := strconv.Atoi(strings.TrimRight(sc.Text(), "\n "))
 		if err != nil {
 			log.Panic(err)
 		}

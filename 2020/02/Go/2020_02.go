@@ -32,7 +32,7 @@ func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	lines := make([]string, 0)
 	// Read through 'tokens' until an EOF is encountered.
 	for sc.Scan() {
-		lines = append(lines, sc.Text())
+		lines = append(lines, strings.TrimRight(sc.Text(), "\n "))
 	}
 
 	if err := sc.Err(); err != nil {
