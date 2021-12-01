@@ -48,9 +48,15 @@ func splitLine(line string) (firstNumber int, secondNumber int,
 	// Example line: 5-6 v: hvvgvrm
 	lineSplit := strings.Split(line, " ") // should be 3
 	numbers := strings.Split(lineSplit[0], "-")
-	// TODO: Error handling
-	firstNumber, _ = strconv.Atoi(numbers[0])
-	secondNumber, _ = strconv.Atoi(numbers[1])
+	// TODO: Better Error handling
+	firstNumber, err := strconv.Atoi(numbers[0])
+	if err != nil {
+		log.Panic(err)
+	}
+	secondNumber, err = strconv.Atoi(numbers[1])
+	if err != nil {
+		log.Panic(err)
+	}
 
 	// use if there are multi-byte unicode chars
 	for _, r := range lineSplit[1] {
