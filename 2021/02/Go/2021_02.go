@@ -12,85 +12,59 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	numbers := returnSliceOfIntsFromFile(inputPath)
+	lines := returnSliceOfLinesFromFile(inputPath)
 	var result int
-	result = task01(numbers)
+	result = task01(lines)
 	fmt.Println(result)
 
-	result = task02(numbers)
+	result = task02(lines)
 	fmt.Println(result)
 }
 
-func task01(numbers []int) (result int) {
+func task01(lines []string) (result int) {
 
-	for i := 1; i < len(numbers); i++ {
-		if numbers[i] > numbers[i-1] {
-			result++
+	var horizontal int
+	var depth int
+	for _, line := range lines {
+
+		direction, value := splitLine(line)
+
+		switch direction {
+		case "forward":
+			horizontal += value
+		case "down":
+			depth += value
+		case "up":
+			depth -= value
 		}
 	}
-	return result
+
+	return horizontal * depth
 }
 
-type numberIndex struct {
-	number int
-	index  int
-}
+func task02(lines []string) (result int) {
 
-const finalSum int = 2020
+	var horizontal int
+	var depth int
+	var aim int
 
-// three numbers should sum to 2020 -> multiply
-func task02(numbers []int) (result int) {
-	twoNumbersSum := make(map[int][]numberIndex)
+	for _, line := range lines {
 
-	for i := 0; i < len(numbers); i++ {
-		for j := i + 1; j < len(numbers); j++ {
-			if numbers[i]+numbers[j] < finalSum {
-				sum := numbers[i] + numbers[j]
-				// override strategy here
-				twoNumbersSum[sum] = make([]numberIndex, 2)
-				twoNumbersSum[sum][0] = numberIndex{number: numbers[i], index: i}
-				twoNumbersSum[sum][1] = numberIndex{number: numbers[j], index: j}
-			}
-		}
-	}
+		direction, value := splitLine(line)
 
-	for index, number := range numbers {
-		if twoNumbers, ok := twoNumbersSum[finalSum-number]; ok &&
-			index != twoNumbers[0].index && index != twoNumbers[1].index {
-			result = number * twoNumbers[0].number * twoNumbers[1].number
-			break
-		}
-	}
-	return result
-}
-
-func returnSliceOfIntsFromFile(filePath string) (sliceOfLines []int) {
-	// https://stackoverflow.com/questions/8757389/reading-a-file-line-by-line-in-go
-	file, err := os.Open(filePath)
-
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	sc := bufio.NewScanner(file)
-	lines := make([]int, 0)
-	// Read through 'tokens' until an EOF is encountered.
-	for sc.Scan() {
-		// TODO better Error handling Atoi
-		number, err := strconv.Atoi(strings.TrimRight(sc.Text(), "\n "))
-		if err != nil {
-			log.Panic(err)
+		switch direction {
+		case "forward":
+			horizontal += value
+			depth += aim * value
+		case "down":
+			aim += value
+		case "up":
+			aim -= value
 		}
 
-		lines = append(lines, number)
 	}
 
-	if err := sc.Err(); err != nil {
-		log.Panic(err)
-	}
-
-	return lines
+	return horizontal * depth
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
@@ -116,28 +90,10 @@ func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	return lines
 }
 
-func splitLine(line string) (firstNumber int, secondNumber int,
-	char rune, password string) {
+func splitLine(line string) (direction string, value int) {
 
-	// Example line: 5-6 v: hvvgvrm
-	lineSplit := strings.Split(line, " ") // should be 3
-	numbers := strings.Split(lineSplit[0], "-")
-	// TODO: Better Error handling
-	firstNumber, err := strconv.Atoi(numbers[0])
-	if err != nil {
-		log.Panic(err)
-	}
-	secondNumber, err = strconv.Atoi(numbers[1])
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// use if there are multi-byte unicode chars
-	for _, r := range lineSplit[1] {
-		char = r
-		break
-	}
-
-	password = lineSplit[2]
+	lineSplit := strings.Split(line, " ")
+	direction = lineSplit[0]
+	value, _ = strconv.Atoi(lineSplit[1])
 	return
 }
