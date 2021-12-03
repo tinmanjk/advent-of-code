@@ -23,6 +23,53 @@ func main() {
 	// fmt.Println(result)
 }
 
+func whoWins(lines map[int]rune, mapIndeces *map[int]int) (result rune) {
+	count1, count0 := 0, 0
+	for _, v := range lines {
+		if v == '1' {
+			count1++
+		} else {
+			count0++
+		}
+	}
+	if count1 >= count0 {
+		result = '1'
+	} else {
+		result = '0'
+	}
+
+	for k, v := range lines {
+		if v != result {
+			delete(*mapIndeces, k)
+		}
+	}
+	return
+}
+
+func whoWinsCo2(lines map[int]rune, mapIndeces *map[int]int) (result rune) {
+	count1, count0 := 0, 0
+	for _, v := range lines {
+		if v == '1' {
+			count1++
+		} else {
+			count0++
+		}
+	}
+	if count0 <= count1 {
+		result = '0'
+	} else {
+		result = '1'
+	}
+
+	for k, v := range lines {
+		if v != result {
+			delete(*mapIndeces, k)
+		}
+	}
+
+	return
+}
+
 func task01(lines []string) (result float64) {
 
 	// gamma
@@ -30,26 +77,70 @@ func task01(lines []string) (result float64) {
 	totalLines := len(lines)
 	lineLength := len(lines[0])
 	// count 1 only
-	oneArray := make([]int, lineLength)
+	var res rune
+	// hashMap
+	mapIndecesOxygen := make(map[int]int)
 	for i := 0; i < totalLines; i++ {
-		for j := 0; j < lineLength; j++ {
-			if lines[i][j] == '1' {
-				oneArray[j]++
+		mapIndecesOxygen[i] = i
+	}
+
+	for i := 0; i < lineLength; i++ {
+		runeLine := make(map[int]rune)
+		for j := 0; j < totalLines; j++ {
+			if _, ok := mapIndecesOxygen[j]; ok {
+				runeLine[j] = rune(lines[j][i])
 			}
 		}
+		res = whoWins(runeLine, &mapIndecesOxygen)
+		fmt.Println(res)
 	}
+
+	var oxygen string
+	// resulta e na mapIndex.a trqbva da e edin
+	for k := range mapIndecesOxygen {
+		oxygen = lines[k]
+	}
+	fmt.Println(oxygen)
+
+	mapIndecesCo2 := make(map[int]int)
+	for i := 0; i < totalLines; i++ {
+		mapIndecesCo2[i] = i
+	}
+
+	for i := 0; i < lineLength; i++ {
+		runeLine := make(map[int]rune)
+		for j := 0; j < totalLines; j++ {
+			if _, ok := mapIndecesCo2[j]; ok {
+				runeLine[j] = rune(lines[j][i])
+			}
+		}
+		if len(mapIndecesCo2) > 1 {
+			res = whoWinsCo2(runeLine, &mapIndecesCo2)
+			fmt.Println(res)
+		}
+
+	}
+
+	var co2 string
+	// resulta e na mapIndex.a trqbva da e edin
+	for k := range mapIndecesCo2 {
+		co2 = lines[k]
+	}
+	fmt.Println(co2)
 
 	var gamma, epsilon float64
 	gamma = 0
 	epsilon = 0
-	for i := len(oneArray) - 1; i >= 0; i-- {
+	for i := len(oxygen) - 1; i >= 0; i-- {
 
-		power := float64(len(oneArray) - i - 1)
+		power := float64(len(oxygen) - i - 1)
 
-		if oneArray[i] >= totalLines/2 {
+		if oxygen[i] == '1' {
 			gamma += math.Pow(2, power)
 
-		} else {
+		}
+
+		if co2[i] == '1' {
 			epsilon += math.Pow(2, power)
 
 		}
