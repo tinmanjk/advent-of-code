@@ -15,10 +15,10 @@ func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
 	var result int
 
-	result = task01(lines)
-	fmt.Println(result)
+	// result = task01(lines)
+	// fmt.Println(result)
 
-	// result = task02(lines, slopes)
+	result = task02(lines)
 	fmt.Println(result)
 }
 
@@ -39,7 +39,7 @@ type passport struct {
 // number of valid passports
 func task01(lines []string) (valid int) {
 
-	// issue with readfile - eat last line if empty ""
+	// issue with readfile - eat last line if empty
 	if len(lines) > 0 && lines[len(lines)-1] != "" {
 		lines = append(lines, "")
 	}
@@ -63,14 +63,47 @@ func task01(lines []string) (valid int) {
 			continue
 		}
 
-		parseLine(lines[i], &currentPassport)
+		parseLine1(lines[i], &currentPassport)
 
 	}
 
 	return valid
 }
 
-func parseLine(line string, pass *passport) {
+func task02(lines []string) (valid int) {
+
+	// issue with readfile - eat last line if empty
+	if len(lines) > 0 && lines[len(lines)-1] != "" {
+		lines = append(lines, "")
+	}
+
+	currentPassport := passport{}
+	for i := 0; i < len(lines); i++ {
+		if lines[i] == "" {
+			// valid++
+			if currentPassport.byr != "" &&
+				currentPassport.iyr != "" &&
+				currentPassport.eyr != "" &&
+				currentPassport.hgt != "" &&
+				currentPassport.hcl != "" &&
+				currentPassport.ecl != "" &&
+				// cid is optional
+				currentPassport.pid != "" {
+
+				valid++
+			}
+			currentPassport = passport{}
+			continue
+		}
+
+		parseLine2(lines[i], &currentPassport)
+
+	}
+
+	return valid
+}
+
+func parseLine1(line string, pass *passport) {
 	tokens := strings.Split(line, " ")
 	for _, t := range tokens {
 		keyValuePair := strings.Split(t, ":")
@@ -91,7 +124,89 @@ func parseLine(line string, pass *passport) {
 			pass.ecl = value
 		case "pid":
 			pass.pid = value
-		case "cid":
+		case "cid": // ignored
+			pass.cid = value
+		default:
+			panic("no such field")
+		}
+
+	}
+}
+
+func parseLine2(line string, pass *passport) {
+	tokens := strings.Split(line, " ")
+	for _, t := range tokens {
+		keyValuePair := strings.Split(t, ":")
+		key := keyValuePair[0]
+		value := keyValuePair[1]
+		switch key {
+		case "byr":
+			if conv, err := strconv.Atoi(value); err == nil &&
+				1920 <= conv && conv <= 2002 {
+				pass.byr = value
+			} else if err != nil {
+				log.Panic(err)
+			}
+		case "iyr":
+			if conv, err := strconv.Atoi(value); err == nil &&
+				2010 <= conv && conv <= 2020 {
+				pass.iyr = value
+			} else if err != nil {
+				log.Panic(err)
+			}
+		case "eyr":
+			if conv, err := strconv.Atoi(value); err == nil &&
+				2020 <= conv && conv <= 2030 {
+				pass.eyr = value
+			} else if err != nil {
+				log.Panic(err)
+			}
+		case "hgt":
+			if len(value) < 3 {
+				break
+			}
+			unit := value[len(value)-2:]
+			measure := value[:len(value)-2]
+			switch unit {
+			case "cm":
+				if conv, err := strconv.Atoi(measure); err == nil &&
+					150 <= conv && conv <= 193 {
+					pass.hgt = value
+				} else if err != nil {
+					log.Panic(err)
+				}
+			case "in":
+				if conv, err := strconv.Atoi(measure); err == nil &&
+					59 <= conv && conv <= 76 {
+					pass.hgt = value
+				} else if err != nil {
+					log.Panic(err)
+				}
+			}
+		case "hcl":
+			if value[0] == '#' {
+				validHex := true
+				for _, r := range value[1:] {
+					if !('0' <= r && r <= '9' || 'a' <= r && r <= 'f') {
+						validHex = false
+						break
+					}
+				}
+				if validHex {
+					pass.hcl = value
+
+				}
+			}
+		case "ecl":
+			switch value {
+			case "amb", "blu", "brn", "gry", "grn", "hzl", "oth":
+				pass.ecl = value
+			}
+		case "pid":
+			if len(value) == 9 {
+				pass.pid = value
+			}
+		case "cid": // ignored
 			pass.cid = value
 		default:
 			panic("no such field")
