@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -65,53 +65,34 @@ func task02(numbers []int) (result int) {
 }
 
 func returnSliceOfIntsFromFile(filePath string) (sliceOfLines []int) {
-	// https://stackoverflow.com/questions/8757389/reading-a-file-line-by-line-in-go
-	file, err := os.Open(filePath)
+	slicesOfLines := returnSliceOfLinesFromFile(filePath)
 
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	sc := bufio.NewScanner(file)
-	lines := make([]int, 0)
-	// Read through 'tokens' until an EOF is encountered.
-	for sc.Scan() {
+	lines := make([]int, 0, len(slicesOfLines))
+	for i := 0; i < len(slicesOfLines); i++ {
 		// TODO better Error handling Atoi
-		number, err := strconv.Atoi(strings.TrimRight(sc.Text(), "\n "))
+		number, err := strconv.Atoi(strings.TrimRight(slicesOfLines[i], "\n "))
 		if err != nil {
 			log.Panic(err)
 		}
-
 		lines = append(lines, number)
-	}
-
-	if err := sc.Err(); err != nil {
-		log.Panic(err)
 	}
 
 	return lines
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	// https://stackoverflow.com/questions/8757389/reading-a-file-line-by-line-in-go
 	file, err := os.Open(filePath)
-
 	if err != nil {
 		log.Panic(err)
 	}
 	defer file.Close()
 
-	sc := bufio.NewScanner(file)
-	lines := make([]string, 0)
-	// Read through 'tokens' until an EOF is encountered.
-	for sc.Scan() {
-		lines = append(lines, strings.TrimRight(sc.Text(), "\n "))
-	}
-
-	if err := sc.Err(); err != nil {
+	rawBytes, err := io.ReadAll(file)
+	if err != nil {
 		log.Panic(err)
 	}
+
+	lines := strings.Split(string(rawBytes), "\n")
 
 	return lines
 }

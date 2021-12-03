@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -199,24 +199,18 @@ func parseSingleLine(line string, pass *passport, withFullValidation bool) {
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	// https://stackoverflow.com/questions/8757389/reading-a-file-line-by-line-in-go
 	file, err := os.Open(filePath)
-
 	if err != nil {
 		log.Panic(err)
 	}
 	defer file.Close()
 
-	sc := bufio.NewScanner(file)
-	lines := make([]string, 0)
-	// Read through 'tokens' until an EOF is encountered.
-	for sc.Scan() {
-		lines = append(lines, strings.TrimRight(sc.Text(), "\n "))
-	}
-
-	if err := sc.Err(); err != nil {
+	rawBytes, err := io.ReadAll(file)
+	if err != nil {
 		log.Panic(err)
 	}
+
+	lines := strings.Split(string(rawBytes), "\n")
 
 	return lines
 }
