@@ -74,10 +74,10 @@ func task02(lines []string) (result int) {
 		}
 
 		if len(hashmapIndecesOxygen) > 1 {
-			oxygenFilterLogic(runeLineOxygen, &hashmapIndecesOxygen)
+			filterLogic(runeLineOxygen, &hashmapIndecesOxygen, "oxygen")
 		}
 		if len(hashmapIndecesCo2) > 1 {
-			co2FilterLogic(runeLineCo2, &hashmapIndecesCo2)
+			filterLogic(runeLineCo2, &hashmapIndecesCo2, "co2")
 		}
 	}
 
@@ -102,30 +102,33 @@ func task02(lines []string) (result int) {
 	return result
 }
 
-func oxygenFilterLogic(lineRuneMap map[int]rune, hashMapIndeces *map[int]int) {
-	count0, count1 := returnMapCountsForOnesAndZeroes(lineRuneMap)
-
-	var oxygenFilter rune
-	if count1 >= count0 {
-		oxygenFilter = '1'
-	} else {
-		oxygenFilter = '0'
+func determineFilterRune(count0 int, count1 int, filterStrategy string) (result rune) {
+	switch filterStrategy {
+	case "oxygen":
+		if count1 >= count0 {
+			result = '1'
+		} else {
+			result = '0'
+		}
+	case "co2":
+		if count0 <= count1 {
+			result = '0'
+		} else {
+			result = '1'
+		}
+	default:
+		log.Panic("Unsupported strategy")
 	}
 
-	filterOutHashmap(lineRuneMap, hashMapIndeces, oxygenFilter)
+	return result
 }
 
-func co2FilterLogic(lineRuneMap map[int]rune, hashMapIndeces *map[int]int) {
+func filterLogic(lineRuneMap map[int]rune, hashMapIndeces *map[int]int, filterStrategy string) {
 	count0, count1 := returnMapCountsForOnesAndZeroes(lineRuneMap)
 
-	var co2Filter rune
-	if count0 <= count1 {
-		co2Filter = '0'
-	} else {
-		co2Filter = '1'
-	}
+	filterRune := determineFilterRune(count0, count1, filterStrategy)
 
-	filterOutHashmap(lineRuneMap, hashMapIndeces, co2Filter)
+	filterHashmap(lineRuneMap, hashMapIndeces, filterRune)
 }
 
 func returnSliceCountsForOnesAndZeroes(lines []rune) (count0 int, count1 int) {
@@ -152,9 +155,9 @@ func returnMapCountsForOnesAndZeroes(lines map[int]rune) (count0 int, count1 int
 	return
 }
 
-func filterOutHashmap(lineRuneMap map[int]rune, hashmapIndeces *map[int]int, filterOut rune) {
+func filterHashmap(lineRuneMap map[int]rune, hashmapIndeces *map[int]int, filter rune) {
 	for k, v := range lineRuneMap {
-		if v != filterOut {
+		if v != filter {
 			delete(*hashmapIndeces, k)
 		}
 	}
