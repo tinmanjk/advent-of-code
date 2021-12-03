@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -12,23 +13,49 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	numbers := returnSliceOfIntsFromFile(inputPath)
-	var result int
-	result = task01(numbers)
+	lines := returnSliceOfLinesFromFile(inputPath)
+	// lines := returnSliceOfLinesFromFile()
+	var result float64
+	result = task01(lines)
 	fmt.Println(result)
 
-	result = task02(numbers)
-	fmt.Println(result)
+	// result = task02(numbers)
+	// fmt.Println(result)
 }
 
-func task01(numbers []int) (result int) {
+func task01(lines []string) (result float64) {
 
-	for i := 1; i < len(numbers); i++ {
-		if numbers[i] > numbers[i-1] {
-			result++
+	// gamma
+	// epsilon
+	totalLines := len(lines)
+	lineLength := len(lines[0])
+	// count 1 only
+	oneArray := make([]int, lineLength)
+	for i := 0; i < totalLines; i++ {
+		for j := 0; j < lineLength; j++ {
+			if lines[i][j] == '1' {
+				oneArray[j]++
+			}
 		}
 	}
-	return result
+
+	var gamma, epsilon float64
+	gamma = 0
+	epsilon = 0
+	for i := len(oneArray) - 1; i >= 0; i-- {
+
+		power := float64(len(oneArray) - i - 1)
+
+		if oneArray[i] >= totalLines/2 {
+			gamma += math.Pow(2, power)
+
+		} else {
+			epsilon += math.Pow(2, power)
+
+		}
+	}
+
+	return gamma * epsilon
 }
 
 type numberIndex struct {
