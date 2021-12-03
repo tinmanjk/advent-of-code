@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -15,10 +16,10 @@ func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
 	var result int
 
-	// result = task01(lines)
-	// fmt.Println(result)
+	result = task1(lines)
+	fmt.Println(result)
 
-	result = task02(lines)
+	result = task2(lines)
 	fmt.Println(result)
 }
 
@@ -33,11 +34,140 @@ type passport struct {
 	cid string //(Country ID)
 }
 
+func (p passport) hasAllRequiredFields() bool {
+	if p.byr != "" &&
+		p.iyr != "" &&
+		p.eyr != "" &&
+		p.hgt != "" &&
+		p.hcl != "" &&
+		p.ecl != "" &&
+		// cid is optional
+		p.pid != "" {
+		return true
+	}
+	return false
+}
+
+func (p *passport) setField(key string, value string, withFullValidation bool) error {
+	if key == "" || value == "" {
+		return errors.New("Key or value is empty")
+	}
+
+	switch key {
+	case "byr":
+		if !withFullValidation {
+			p.byr = value
+			return nil
+		}
+		if conv, err := strconv.Atoi(value); err == nil &&
+			1920 <= conv && conv <= 2002 {
+			p.byr = value
+		} else if err != nil {
+			log.Panic(err)
+		}
+	case "iyr":
+		if !withFullValidation {
+			p.iyr = value
+			return nil
+		}
+		if conv, err := strconv.Atoi(value); err == nil &&
+			2010 <= conv && conv <= 2020 {
+			p.iyr = value
+		} else if err != nil {
+			log.Panic(err)
+		}
+	case "eyr":
+		if !withFullValidation {
+			p.eyr = value
+			return nil
+		}
+		if conv, err := strconv.Atoi(value); err == nil &&
+			2020 <= conv && conv <= 2030 {
+			p.eyr = value
+		} else if err != nil {
+			log.Panic(err)
+		}
+	case "hgt":
+		if !withFullValidation {
+			p.hgt = value
+			return nil
+		}
+		if len(value) < 3 {
+			break
+		}
+		unit := value[len(value)-2:]
+		measure := value[:len(value)-2]
+		switch unit {
+		case "cm":
+			if conv, err := strconv.Atoi(measure); err == nil &&
+				150 <= conv && conv <= 193 {
+				p.hgt = value
+			} else if err != nil {
+				log.Panic(err)
+			}
+		case "in":
+			if conv, err := strconv.Atoi(measure); err == nil &&
+				59 <= conv && conv <= 76 {
+				p.hgt = value
+			} else if err != nil {
+				log.Panic(err)
+			}
+		}
+	case "hcl":
+		if !withFullValidation {
+			p.hcl = value
+			return nil
+		}
+		if value[0] == '#' {
+			validHex := true
+			for _, r := range value[1:] {
+				if !('0' <= r && r <= '9' || 'a' <= r && r <= 'f') {
+					validHex = false
+					break
+				}
+			}
+			if validHex {
+				p.hcl = value
+
+			}
+		}
+	case "ecl":
+		if !withFullValidation {
+			p.ecl = value
+			return nil
+		}
+		switch value {
+		case "amb", "blu", "brn", "gry", "grn", "hzl", "oth":
+			p.ecl = value
+		}
+	case "pid":
+		if !withFullValidation {
+			p.pid = value
+			return nil
+		}
+		if len(value) == 9 {
+			p.pid = value
+		}
+	case "cid": // ignored
+		p.cid = value
+	default:
+		panic("no such field")
+	}
+	return nil
+}
+
+func task1(lines []string) (valid int) {
+	return parseAllLines(lines, false)
+}
+
+func task2(lines []string) (valid int) {
+	return parseAllLines(lines, true)
+}
+
 // passports separated by blank lines
 // kvp separated by \n or " "
 // cid is optional
-// number of valid passports
-func task01(lines []string) (valid int) {
+func parseAllLines(lines []string, withFullValidation bool) (valid int) {
 
 	// issue with readfile - eat last line if empty
 	if len(lines) > 0 && lines[len(lines)-1] != "" {
@@ -47,171 +177,24 @@ func task01(lines []string) (valid int) {
 	currentPassport := passport{}
 	for i := 0; i < len(lines); i++ {
 		if lines[i] == "" {
-			// valid++
-			if currentPassport.byr != "" &&
-				currentPassport.iyr != "" &&
-				currentPassport.eyr != "" &&
-				currentPassport.hgt != "" &&
-				currentPassport.hcl != "" &&
-				currentPassport.ecl != "" &&
-				// cid is optional
-				currentPassport.pid != "" {
-
+			if currentPassport.hasAllRequiredFields() {
 				valid++
 			}
 			currentPassport = passport{}
 			continue
 		}
-
-		parseLine1(lines[i], &currentPassport)
-
+		parseSingleLine(lines[i], &currentPassport, withFullValidation)
 	}
 
 	return valid
 }
 
-func task02(lines []string) (valid int) {
-
-	// issue with readfile - eat last line if empty
-	if len(lines) > 0 && lines[len(lines)-1] != "" {
-		lines = append(lines, "")
-	}
-
-	currentPassport := passport{}
-	for i := 0; i < len(lines); i++ {
-		if lines[i] == "" {
-			// valid++
-			if currentPassport.byr != "" &&
-				currentPassport.iyr != "" &&
-				currentPassport.eyr != "" &&
-				currentPassport.hgt != "" &&
-				currentPassport.hcl != "" &&
-				currentPassport.ecl != "" &&
-				// cid is optional
-				currentPassport.pid != "" {
-
-				valid++
-			}
-			currentPassport = passport{}
-			continue
-		}
-
-		parseLine2(lines[i], &currentPassport)
-
-	}
-
-	return valid
-}
-
-func parseLine1(line string, pass *passport) {
+// TODO Proper Error-handling
+func parseSingleLine(line string, pass *passport, withFullValidation bool) {
 	tokens := strings.Split(line, " ")
 	for _, t := range tokens {
 		keyValuePair := strings.Split(t, ":")
-		key := keyValuePair[0]
-		value := keyValuePair[1]
-		switch key {
-		case "byr":
-			pass.byr = value
-		case "iyr":
-			pass.iyr = value
-		case "eyr":
-			pass.eyr = value
-		case "hgt":
-			pass.hgt = value
-		case "hcl":
-			pass.hcl = value
-		case "ecl":
-			pass.ecl = value
-		case "pid":
-			pass.pid = value
-		case "cid": // ignored
-			pass.cid = value
-		default:
-			panic("no such field")
-		}
-
-	}
-}
-
-func parseLine2(line string, pass *passport) {
-	tokens := strings.Split(line, " ")
-	for _, t := range tokens {
-		keyValuePair := strings.Split(t, ":")
-		key := keyValuePair[0]
-		value := keyValuePair[1]
-		switch key {
-		case "byr":
-			if conv, err := strconv.Atoi(value); err == nil &&
-				1920 <= conv && conv <= 2002 {
-				pass.byr = value
-			} else if err != nil {
-				log.Panic(err)
-			}
-		case "iyr":
-			if conv, err := strconv.Atoi(value); err == nil &&
-				2010 <= conv && conv <= 2020 {
-				pass.iyr = value
-			} else if err != nil {
-				log.Panic(err)
-			}
-		case "eyr":
-			if conv, err := strconv.Atoi(value); err == nil &&
-				2020 <= conv && conv <= 2030 {
-				pass.eyr = value
-			} else if err != nil {
-				log.Panic(err)
-			}
-		case "hgt":
-			if len(value) < 3 {
-				break
-			}
-			unit := value[len(value)-2:]
-			measure := value[:len(value)-2]
-			switch unit {
-			case "cm":
-				if conv, err := strconv.Atoi(measure); err == nil &&
-					150 <= conv && conv <= 193 {
-					pass.hgt = value
-				} else if err != nil {
-					log.Panic(err)
-				}
-			case "in":
-				if conv, err := strconv.Atoi(measure); err == nil &&
-					59 <= conv && conv <= 76 {
-					pass.hgt = value
-				} else if err != nil {
-					log.Panic(err)
-				}
-			}
-		case "hcl":
-			if value[0] == '#' {
-				validHex := true
-				for _, r := range value[1:] {
-					if !('0' <= r && r <= '9' || 'a' <= r && r <= 'f') {
-						validHex = false
-						break
-					}
-				}
-				if validHex {
-					pass.hcl = value
-
-				}
-			}
-		case "ecl":
-			switch value {
-			case "amb", "blu", "brn", "gry", "grn", "hzl", "oth":
-				pass.ecl = value
-			}
-		case "pid":
-			if len(value) == 9 {
-				pass.pid = value
-			}
-		case "cid": // ignored
-			pass.cid = value
-		default:
-			panic("no such field")
-		}
-
+		pass.setField(keyValuePair[0], keyValuePair[1], withFullValidation)
 	}
 }
 
@@ -236,30 +219,4 @@ func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	}
 
 	return lines
-}
-
-func splitLine(line string) (firstNumber int, secondNumber int,
-	char rune, password string) {
-
-	// Example line: 5-6 v: hvvgvrm
-	lineSplit := strings.Split(line, " ") // should be 3
-	numbers := strings.Split(lineSplit[0], "-")
-	// TODO: Better Error handling
-	firstNumber, err := strconv.Atoi(numbers[0])
-	if err != nil {
-		log.Panic(err)
-	}
-	secondNumber, err = strconv.Atoi(numbers[1])
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// use if there are multi-byte unicode chars
-	for _, r := range lineSplit[1] {
-		char = r
-		break
-	}
-
-	password = lineSplit[2]
-	return
 }
