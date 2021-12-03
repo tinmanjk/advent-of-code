@@ -163,11 +163,12 @@ func filterHashmap(lineRuneMap map[int]rune, hashmapIndeces *map[int]int, filter
 	}
 }
 
+// ToDo Overflow Handling
 func convertFromBinary(binaryString string) (result int) {
 	for i := 0; i < len(binaryString); i++ {
-		result <<= 1
-		digit := binaryString[i] - 0x30
-		result = result | int(digit)
+		result <<= 1                 // make place to the left
+		digit := binaryString[i] & 1 // take whether last bit is 1 // 0x30 vs 0x31
+		result |= int(digit)         // place digit at the end
 	}
 	return
 }
