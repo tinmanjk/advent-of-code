@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
 	"os"
 	"strings"
 )
@@ -174,17 +173,6 @@ func convertFromBinary(binaryString string) (result int) {
 		result |= int(digit)         // place digit at the end
 	}
 	return
-}
-
-func convertFromBinaryDeprecated(binaryString string) (result float64) {
-	for i := len(binaryString) - 1; i >= 0; i-- {
-		power := float64(len(binaryString) - i - 1)
-
-		if binaryString[i] == '1' {
-			result += math.Pow(2, power)
-		}
-	}
-	return result
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
