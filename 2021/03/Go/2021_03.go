@@ -45,12 +45,8 @@ func task01(lines []string) (result int) {
 		}
 	}
 
-	var gammaFloat, epsilonFloat float64
-	gammaFloat = convertFromBinary(gamma)
-	epsilonFloat = convertFromBinary(epsilon)
-
 	// TODO: check conversion
-	result = int(gammaFloat * epsilonFloat)
+	result = convertFromBinary(gamma) * convertFromBinary(epsilon)
 	return result
 }
 
@@ -101,12 +97,8 @@ func task02(lines []string) (result int) {
 		co2 = lines[k]
 	}
 
-	var oxygenFloat, co2Float float64
-	oxygenFloat = convertFromBinary(oxygen)
-	co2Float = convertFromBinary(co2)
-
 	// TODO: check conversion
-	result = int(oxygenFloat * co2Float)
+	result = convertFromBinary(oxygen) * convertFromBinary(co2)
 	return result
 }
 
@@ -168,7 +160,16 @@ func filterOutHashmap(lineRuneMap map[int]rune, hashmapIndeces *map[int]int, fil
 	}
 }
 
-func convertFromBinary(binaryString string) (result float64) {
+func convertFromBinary(binaryString string) (result int) {
+	for i := 0; i < len(binaryString); i++ {
+		result <<= 1
+		digit := binaryString[i] - 0x30
+		result = result | int(digit)
+	}
+	return
+}
+
+func convertFromBinaryDeprecated(binaryString string) (result float64) {
 	for i := len(binaryString) - 1; i >= 0; i-- {
 		power := float64(len(binaryString) - i - 1)
 
