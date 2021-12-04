@@ -9,17 +9,20 @@ import (
 	"strings"
 )
 
-const inputPath = "../input.txt"
+const inputPath = "../input0.txt"
 
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
-	randomNumbersStrings, listOfMatrices := parseInput(lines)
-	var result int
-	result = task01(randomNumbersStrings, listOfMatrices)
-	fmt.Println(result)
-	randomNumbersStrings, listOfMatrices = parseInput(lines)
-	result = task02(randomNumbersStrings, listOfMatrices)
 
+	var result int
+	// task 01
+	randomNumbersStrings, listOfMatrices := parseInput(lines)
+	result = determineResultOfWin(randomNumbersStrings, listOfMatrices, true)
+	fmt.Println(result)
+	// task 02
+	// TODO fix need to re-parse input
+	randomNumbersStrings, listOfMatrices = parseInput(lines)
+	result = determineResultOfWin(randomNumbersStrings, listOfMatrices, false)
 	fmt.Println(result)
 }
 
@@ -61,12 +64,18 @@ func parseInput(lines []string) (randomNumbersStrings []string, listOfMatrices [
 	return
 }
 
-func task01(randomNumbers []string, listOfMatrices [][][]string) (result int) {
+func determineResultOfWin(randomNumbers []string, listOfMatrices [][][]string,
+	winLast bool) (result int) {
 
+	numberMatrices := 0
+	alreadyWon := make(map[int]int, len(listOfMatrices))
 	for i := 0; i < len(randomNumbers); i++ {
 		randomNumber := randomNumbers[i]
 		// traverse the matrices
 		for j := 0; j < len(listOfMatrices); j++ {
+			if _, ok := alreadyWon[j]; ok {
+				continue
+			}
 			// inside a matrix by row
 			for k := 0; k < 5; k++ {
 				// set empty as easiest
@@ -76,7 +85,14 @@ func task01(randomNumbers []string, listOfMatrices [][][]string) (result int) {
 						listOfMatrices[j][k][l] = ""
 						if checkBingo(listOfMatrices[j]) {
 							result = calculateScore(randomNumber, listOfMatrices[j])
-							return
+							if !winLast {
+								return
+							}
+							alreadyWon[j] = j
+							numberMatrices++
+							if numberMatrices == len(listOfMatrices) {
+								return
+							}
 						}
 					}
 				}
@@ -116,41 +132,6 @@ func calculateScore(randomNumber string, matrix [][]string) (score int) {
 	}
 	convertedRandomNumber, _ := strconv.Atoi(randomNumber)
 	score *= convertedRandomNumber
-	return
-}
-
-func task02(randomNumbers []string, listOfMatrices [][][]string) (result int) {
-
-	numberMatrices := 0
-	alreadyWon := make(map[int]int, len(listOfMatrices))
-	for i := 0; i < len(randomNumbers); i++ {
-		randomNumber := randomNumbers[i]
-		// traverse the matrices
-		for j := 0; j < len(listOfMatrices); j++ {
-			if _, ok := alreadyWon[j]; ok {
-				continue
-			}
-			// inside a matrix by row
-			for k := 0; k < 5; k++ {
-				// set empty as easiest
-				// inside a row by column
-				for l := 0; l < 5; l++ {
-					if listOfMatrices[j][k][l] == randomNumber {
-						listOfMatrices[j][k][l] = ""
-						if checkBingo(listOfMatrices[j]) {
-							result = calculateScore(randomNumber, listOfMatrices[j])
-							alreadyWon[j] = j
-							numberMatrices++
-							if numberMatrices == len(listOfMatrices) {
-								return
-							}
-						}
-					}
-				}
-
-			}
-		}
-	}
 	return
 }
 
