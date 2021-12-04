@@ -29,11 +29,6 @@ func main() {
 func parseInput(lines []string) (randomNumbersStrings []string, listOfMatrices [][][]string) {
 	randomNumbersStrings = strings.Split(lines[0], ",")
 
-	randomNumbers := make([]int, len(randomNumbersStrings))
-	for i := 0; i < len(randomNumbersStrings); i++ {
-		randomNumbers[i], _ = strconv.Atoi(randomNumbersStrings[i])
-	}
-
 	numberOfMatrices := (len(lines) - 1) / 6
 
 	// matrices
