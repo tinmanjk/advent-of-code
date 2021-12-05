@@ -16,39 +16,45 @@ func main() {
 
 	lineSegmentSlice := parseInput(lines)
 	var result int
-	result = task01(lineSegmentSlice)
+	result = findResult(lineSegmentSlice, false)
 	fmt.Println(result)
 
-	// result = task02(numbers)
-	// fmt.Println(result)
+	result = findResult(lineSegmentSlice, true)
+	fmt.Println(result)
+}
+
+type point struct {
+	x int
+	y int
+}
+type lineSegment struct {
+	p1 point
+	p2 point
 }
 
 func parseInput(slicesOfLines []string) (sliceOfLineSegments []lineSegment) {
+
 	sliceOfLineSegments = make([]lineSegment, len(slicesOfLines))
 	for i := 0; i < len(slicesOfLines); i++ {
-		lineSeg := lineSegment{}
+		lineSeg := lineSegment{point{}, point{}}
 		line := strings.Split(slicesOfLines[i], " -> ")
 		x1y1 := strings.Split(line[0], ",")
 		x2y2 := strings.Split(line[1], ",")
-
-		lineSeg.x1, _ = strconv.Atoi(x1y1[0])
-		lineSeg.y1, _ = strconv.Atoi(x1y1[1])
-		lineSeg.x2, _ = strconv.Atoi(x2y2[0])
-		lineSeg.y2, _ = strconv.Atoi(x2y2[1])
+		lineSeg.p1.x, _ = strconv.Atoi(x1y1[0])
+		lineSeg.p1.y, _ = strconv.Atoi(x1y1[1])
+		lineSeg.p2.x, _ = strconv.Atoi(x2y2[0])
+		lineSeg.p2.y, _ = strconv.Atoi(x2y2[1])
 
 		sliceOfLineSegments[i] = lineSeg
 	}
 	return
 }
 
-// x1 = x2 or y1 = y2
-// horizontal or vertical lines
-func task01(sliceOfLineSegments []lineSegment) (result int) {
+func findResult(sliceOfLineSegments []lineSegment, includeDiagonal bool) (result int) {
 
 	mapPoints := make(map[point]int, 0)
 	for i := 0; i < len(sliceOfLineSegments); i++ {
-		// vertical or horizontal cases
-		createMapPoitns(sliceOfLineSegments[i], mapPoints)
+		createMapPoints(sliceOfLineSegments[i], mapPoints, includeDiagonal)
 	}
 
 	for _, v := range mapPoints {
@@ -59,138 +65,62 @@ func task01(sliceOfLineSegments []lineSegment) (result int) {
 	return result
 }
 
-func createMapPoitns(lineSeg lineSegment, mapPoints map[point]int) {
-	if lineSeg.x1 == lineSeg.x2 ||
-		lineSeg.y1 == lineSeg.y2 {
-		if lineSeg.x1 == lineSeg.x2 {
-			var min, max int
-			if lineSeg.y1 <= lineSeg.y2 {
-				min = lineSeg.y1
-				max = lineSeg.y2
-
-			} else {
-				min = lineSeg.y2
-				max = lineSeg.y1
-			}
-
-			for i := min; i < max+1; i++ {
-				p := point{lineSeg.x1, i}
-
-				if _, ok := mapPoints[p]; ok {
-					mapPoints[p]++
-					continue
-				}
-				mapPoints[p] = 1
-			}
-
+func createMapPoints(lineSeg lineSegment, mapPoints map[point]int, includeDiagonal bool) {
+	switch {
+	case lineSeg.p1.x == lineSeg.p2.x: // vertical
+		x := lineSeg.p1.x
+		min, max := findMinMax(lineSeg.p1.y, lineSeg.p2.y)
+		for y := min; y <= max; y++ {
+			upsertMapPointsCounts(x, y, mapPoints)
 		}
-
-		if lineSeg.y1 == lineSeg.y2 {
-			var min, max int
-			if lineSeg.x1 <= lineSeg.x2 {
-				min = lineSeg.x1
-				max = lineSeg.x2
-
-			} else {
-				min = lineSeg.x2
-				max = lineSeg.x1
-			}
-
-			for i := min; i < max+1; i++ {
-				p := point{i, lineSeg.y1}
-
-				if _, ok := mapPoints[p]; ok {
-					mapPoints[p]++
-					continue
-				}
-				mapPoints[p] = 1
-			}
-
+	case lineSeg.p1.y == lineSeg.p2.y: // horizontal
+		y := lineSeg.p1.y
+		min, max := findMinMax(lineSeg.p1.x, lineSeg.p2.x)
+		for x := min; x <= max; x++ {
+			upsertMapPointsCounts(x, y, mapPoints)
 		}
-	} else {
-		// up/down and direction
-		// dva tipa
-		// tip 1
+	case includeDiagonal:
 		var leftPoint, rightPoint point
-		if lineSeg.x1 < lineSeg.x2 {
-			leftPoint = point{lineSeg.x1, lineSeg.y1}
-			rightPoint = point{lineSeg.x2, lineSeg.y2}
+		if lineSeg.p1.x < lineSeg.p2.x {
+			leftPoint = point{lineSeg.p1.x, lineSeg.p1.y}
+			rightPoint = point{lineSeg.p2.x, lineSeg.p2.y}
 		} else {
-			leftPoint = point{lineSeg.x2, lineSeg.y2}
-			rightPoint = point{lineSeg.x1, lineSeg.y1}
+			leftPoint = point{lineSeg.p2.x, lineSeg.p2.y}
+			rightPoint = point{lineSeg.p1.x, lineSeg.p1.y}
 		}
 
-		// downslope
-		if leftPoint.y > rightPoint.y {
-			// generate downslope
-			// x++ / y--
-			y := leftPoint.y
-			for i := leftPoint.x; i < rightPoint.x+1; i++ {
-				p := point{i, y}
+		for x, y := leftPoint.x, leftPoint.y; x <= rightPoint.x; x++ {
+			upsertMapPointsCounts(x, y, mapPoints)
+			if leftPoint.y > rightPoint.y {
 				y--
-				if _, ok := mapPoints[p]; ok {
-					mapPoints[p]++
-					continue
-				}
-				mapPoints[p] = 1
-			}
-		} else {
-			// generate downslope
-			// x++ / y--
-			y := leftPoint.y
-			for i := leftPoint.x; i < rightPoint.x+1; i++ {
-				p := point{i, y}
+			} else {
 				y++
-				if _, ok := mapPoints[p]; ok {
-					mapPoints[p]++
-					continue
-				}
-				mapPoints[p] = 1
 			}
 		}
-
 	}
-	return
-}
-
-// dictionary ot point obv
-type point struct {
-	x int
-	y int
-}
-type lineSegment struct {
-	x1 int
-	y1 int
-	x2 int
-	y2 int
-}
-
-const finalSum int = 2020
-
-// three numbers should sum to 2020 -> multiply
-func task02(numbers []int) (result int) {
 
 	return
 }
 
-func returnSliceOfIntsFromFile(filePath string) (sliceOfLines []int) {
-	slicesOfLines := returnSliceOfLinesFromFile(filePath)
+func findMinMax(number1 int, number2 int) (min int, max int) {
+	if number1 <= number2 {
+		min = number1
+		max = number2
 
-	lines := make([]int, 0, len(slicesOfLines))
-	for i := 0; i < len(slicesOfLines); i++ {
-		trimmed := strings.TrimRight(slicesOfLines[i], "\n ")
-		if trimmed == "" {
-			continue
-		}
-		// TODO better Error handling Atoi
-		number, err := strconv.Atoi(trimmed)
-		if err != nil {
-			log.Panic(err)
-		}
-		lines = append(lines, number)
+	} else {
+		min = number2
+		max = number1
 	}
+	return
+}
 
-	return lines
+func upsertMapPointsCounts(x int, y int, mapPoints map[point]int) {
+	p := point{x, y}
+	if _, ok := mapPoints[p]; ok {
+		mapPoints[p]++
+		return
+	}
+	mapPoints[p] = 1
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
@@ -208,30 +138,4 @@ func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	lines := strings.Split(string(rawBytes), "\n")
 
 	return lines
-}
-
-func splitLine(line string) (firstNumber int, secondNumber int,
-	char rune, password string) {
-
-	// Example line: 5-6 v: hvvgvrm
-	lineSplit := strings.Split(line, " ") // should be 3
-	numbers := strings.Split(lineSplit[0], "-")
-	// TODO: Better Error handling
-	firstNumber, err := strconv.Atoi(numbers[0])
-	if err != nil {
-		log.Panic(err)
-	}
-	secondNumber, err = strconv.Atoi(numbers[1])
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// use if there are multi-byte unicode chars
-	for _, r := range lineSplit[1] {
-		char = r
-		break
-	}
-
-	password = lineSplit[2]
-	return
 }
