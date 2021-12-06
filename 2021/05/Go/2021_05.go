@@ -82,11 +82,11 @@ func createMapPoints(lineSeg lineSegment, mapPoints map[point]int, includeDiagon
 	case includeDiagonal:
 		var leftPoint, rightPoint point
 		if lineSeg.p1.x < lineSeg.p2.x {
-			leftPoint = point{lineSeg.p1.x, lineSeg.p1.y}
-			rightPoint = point{lineSeg.p2.x, lineSeg.p2.y}
+			leftPoint = lineSeg.p1
+			rightPoint = lineSeg.p2
 		} else {
-			leftPoint = point{lineSeg.p2.x, lineSeg.p2.y}
-			rightPoint = point{lineSeg.p1.x, lineSeg.p1.y}
+			leftPoint = lineSeg.p2
+			rightPoint = lineSeg.p1
 		}
 
 		for x, y := leftPoint.x, leftPoint.y; x <= rightPoint.x; x++ {
