@@ -27,8 +27,8 @@ func findResult(fishTimeToNew []int, numberDays int) (result uint64) {
 	dayBuckets := make([]uint64, 9)
 
 	// Initial state into slice
-	for i := 0; i < len(fishTimeToNew); i++ {
-		dayBuckets[fishTimeToNew[i]]++
+	for _, v := range fishTimeToNew {
+		dayBuckets[v]++
 	}
 
 	for i := 0; i < numberDays; i++ {
