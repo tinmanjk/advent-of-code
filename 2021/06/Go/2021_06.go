@@ -13,38 +13,34 @@ const inputPath = "../input.txt"
 
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath) // 1 line
-	fishAges := parseInput(lines)
+	fishTimeToNew := parseInput(lines)
 	var result int64
-	result = findResult(fishAges, 80)
+	result = findResult(fishTimeToNew, 80)
 	fmt.Println(result)
-	result = findResult(fishAges, 256)
+	result = findResult(fishTimeToNew, 256)
 	fmt.Println(result)
 }
 
-func findResult(fishNext []int, numberDays int) (result int64) {
+func findResult(fishTimeToNew []int, numberDays int) (result int64) {
 
-	// Initialize map with possible left-days
-	mapNumbers := make(map[int]int, 0)
-	for i := -1; i <= 8; i++ {
-		mapNumbers[i] = 0
-	}
+	// use slice as map
+	dayBuckets := make([]int, 9)
 
-	// Initial state into map
-	for i := 0; i < len(fishNext); i++ {
-		mapNumbers[fishNext[i]]++
+	// Initial state into slice
+	for i := 0; i < len(fishTimeToNew); i++ {
+		dayBuckets[fishTimeToNew[i]]++
 	}
 
 	for i := 0; i < numberDays; i++ {
-		// update map
-		for j := 0; j <= 8; j++ {
-			mapNumbers[j-1] = mapNumbers[j]
+		newOnes := dayBuckets[0]
+		for j := 1; j <= 8; j++ {
+			dayBuckets[j-1] = dayBuckets[j]
 		}
-		mapNumbers[6] += mapNumbers[-1]
-		mapNumbers[8] = mapNumbers[-1]
+		dayBuckets[6] += newOnes
+		dayBuckets[8] = newOnes
 	}
-	mapNumbers[-1] = 0
 
-	for _, v := range mapNumbers {
+	for _, v := range dayBuckets {
 		result += int64(v)
 	}
 	return
