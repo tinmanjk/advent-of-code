@@ -14,17 +14,17 @@ const inputPath = "../input.txt"
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath) // 1 line
 	fishTimeToNew := parseInput(lines)
-	var result int64
+	var result uint64
 	result = findResult(fishTimeToNew, 80)
 	fmt.Println(result)
 	result = findResult(fishTimeToNew, 256)
 	fmt.Println(result)
 }
 
-func findResult(fishTimeToNew []int, numberDays int) (result int64) {
+func findResult(fishTimeToNew []int, numberDays int) (result uint64) {
 
 	// use slice as map
-	dayBuckets := make([]int, 9)
+	dayBuckets := make([]uint64, 9)
 
 	// Initial state into slice
 	for i := 0; i < len(fishTimeToNew); i++ {
@@ -41,7 +41,7 @@ func findResult(fishTimeToNew []int, numberDays int) (result int64) {
 	}
 
 	for _, v := range dayBuckets {
-		result += int64(v)
+		result += v
 	}
 	return
 }
