@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const inputPath = "../input.txt"
@@ -125,4 +126,13 @@ func splitLine(line string) (firstNumber int, secondNumber int,
 
 	password = lineSplit[2]
 	return
+}
+
+func timeMe(toBeTimed func(), repeatTimes int) (duration time.Duration) {
+	startTime := time.Now()
+	for i := 0; i < repeatTimes; i++ {
+		toBeTimed()
+	}
+
+	return time.Since(startTime)
 }
