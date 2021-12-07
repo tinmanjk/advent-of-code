@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -135,4 +137,16 @@ func timeMe(toBeTimed func(), repeatTimes int) (duration time.Duration) {
 	}
 
 	return time.Since(startTime)
+}
+
+func addUint64(nums ...uint64) (result uint64, err error) {
+	for _, num := range nums {
+		if result > math.MaxUint-num {
+			err = errors.New(fmt.Sprintf("uint64 overflow while adding %v together", nums))
+			result = 0
+			return
+		}
+		result += num
+	}
+	return result, nil
 }
