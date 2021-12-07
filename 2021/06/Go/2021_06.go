@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"math"
+	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -24,11 +25,15 @@ func main() {
 	}
 	fmt.Println(result)
 
-	result, err = findResult(fishTimeToNew, 256) // 442 overflows
+	result, err = findResult(fishTimeToNew, 256)
 	if err != nil {
 		log.Panic(err)
 	}
 	fmt.Println(result)
+
+	uint64CausingOverflow := 442
+	resultBigInt := findResultBigInt(fishTimeToNew, uint64CausingOverflow)
+	fmt.Println(resultBigInt.String())
 }
 
 func findResult(fishTimeToNew []int, numberDays int) (result uint64, err error) {
@@ -54,13 +59,37 @@ func findResult(fishTimeToNew []int, numberDays int) (result uint64, err error) 
 	}
 
 	for _, v := range dayBuckets {
-		addUint64(result, v)
 		result, err = addUint64(result, v)
 		if err != nil {
 			return
 		}
 	}
 	return result, nil
+}
+
+func findResultBigInt(fishTimeToNew []int, numberDays int) (result big.Int) {
+
+	// use slice as map
+	dayBuckets := make([]big.Int, 9)
+
+	// Initial state into slice
+	for _, v := range fishTimeToNew {
+		dayBuckets[v].Add(&dayBuckets[v], big.NewInt(1))
+	}
+
+	for i := 0; i < numberDays; i++ {
+		newOnes := dayBuckets[0]
+		for j := 1; j <= 8; j++ {
+			dayBuckets[j-1] = dayBuckets[j]
+		}
+		dayBuckets[6].Add(&dayBuckets[6], &newOnes)
+		dayBuckets[8] = newOnes
+	}
+
+	for _, v := range dayBuckets {
+		result.Add(&result, &v)
+	}
+	return result
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
