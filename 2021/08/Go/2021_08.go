@@ -81,38 +81,23 @@ func decodeDigit(code string, segmentsDecodeMap map[rune]rune) (digit int) {
 	sort.Slice(decodedRunes, func(i int, j int) bool { return decodedRunes[i] < decodedRunes[j] })
 	sortedDecoded := string(decodedRunes)
 
-	zero := "abcefg"
-	one := "cf"
-	two := "acdeg"
-	three := "acdfg"
-	four := "bcdf"
-	five := "abdfg"
-	six := "abdefg"
-	seven := "acf"
-	eight := "abcdefg"
-	nine := "abcdfg"
+	mapResults := map[string]int{
+		"abcefg":  0,
+		"cf":      1,
+		"acdeg":   2,
+		"acdfg":   3,
+		"bcdf":    4,
+		"abdfg":   5,
+		"abdefg":  6,
+		"acf":     7,
+		"abcdefg": 8,
+		"abcdfg":  9,
+	}
 
-	switch sortedDecoded {
-	case zero:
-		return 0
-	case one:
-		return 1
-	case two:
-		return 2
-	case three:
-		return 3
-	case four:
-		return 4
-	case five:
-		return 5
-	case six:
-		return 6
-	case seven:
-		return 7
-	case eight:
-		return 8
-	case nine:
-		return 9
+	if val, ok := mapResults[sortedDecoded]; ok {
+		digit = val
+	} else {
+		// some error handling TODO
 	}
 
 	return
