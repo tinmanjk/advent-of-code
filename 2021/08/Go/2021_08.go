@@ -71,11 +71,11 @@ func findResult(solutionData []inputLine, partOne bool) (result int) {
 	return
 }
 
-func decodeDigit(code string, decodeMap map[rune]rune) (digit int) {
+func decodeDigit(code string, segmentsDecodeMap map[rune]rune) (digit int) {
 
 	decodedRunes := make([]rune, 0)
 	for _, v := range code {
-		decodedRunes = append(decodedRunes, decodeMap[v])
+		decodedRunes = append(decodedRunes, segmentsDecodeMap[v])
 	}
 
 	sort.Slice(decodedRunes, func(i int, j int) bool { return decodedRunes[i] < decodedRunes[j] })
@@ -118,26 +118,26 @@ func decodeDigit(code string, decodeMap map[rune]rune) (digit int) {
 	return
 }
 
-func createSignalWireToSegmentMap(digitToUniqueMap map[int]string) (segmentsDecodeMap map[rune]rune) {
+func createSignalWireToSegmentMap(digitToSignalPatternMap map[int]string) (segmentsDecodeMap map[rune]rune) {
 
 	segmentsDecodeMap = make(map[rune]rune, 7)
 	// 1 vs 7 = a
-	a := rune(diffAdditions(digitToUniqueMap[1], digitToUniqueMap[7])[0])
+	a := rune(diffAdditions(digitToSignalPatternMap[1], digitToSignalPatternMap[7])[0])
 	segmentsDecodeMap[a] = 'a'
 	// 3 vs 5 = b
-	b := rune(diffAdditions(digitToUniqueMap[3], digitToUniqueMap[5])[0])
+	b := rune(diffAdditions(digitToSignalPatternMap[3], digitToSignalPatternMap[5])[0])
 	segmentsDecodeMap[b] = 'b'
 	// 6 vs 8 = c
-	c := rune(diffAdditions(digitToUniqueMap[6], digitToUniqueMap[8])[0])
+	c := rune(diffAdditions(digitToSignalPatternMap[6], digitToSignalPatternMap[8])[0])
 	segmentsDecodeMap[c] = 'c'
 	// 0 vs 8 = d
-	d := rune(diffAdditions(digitToUniqueMap[0], digitToUniqueMap[8])[0])
+	d := rune(diffAdditions(digitToSignalPatternMap[0], digitToSignalPatternMap[8])[0])
 	segmentsDecodeMap[d] = 'd'
 	// 9 vs 8 = e
-	e := rune(diffAdditions(digitToUniqueMap[9], digitToUniqueMap[8])[0])
+	e := rune(diffAdditions(digitToSignalPatternMap[9], digitToSignalPatternMap[8])[0])
 	segmentsDecodeMap[e] = 'e'
 	// 2 vs 3 = f
-	f := rune(diffAdditions(digitToUniqueMap[2], digitToUniqueMap[3])[0])
+	f := rune(diffAdditions(digitToSignalPatternMap[2], digitToSignalPatternMap[3])[0])
 	segmentsDecodeMap[f] = 'f'
 
 	// g - the one left
@@ -151,8 +151,8 @@ func createSignalWireToSegmentMap(digitToUniqueMap map[int]string) (segmentsDeco
 	return
 }
 
-func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
-	digitToCode = make(map[int]string, 0)
+func createDigitToSignalMap(tenPattern []string) (digitToSignalPatternMap map[int]string) {
+	digitToSignalPatternMap = make(map[int]string, 0)
 
 	twoThreeFive := make([]string, 0)
 	zeroSixNine := make([]string, 0)
@@ -160,17 +160,17 @@ func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 		length := len(v)
 		switch length {
 		case 2:
-			digitToCode[1] = v
+			digitToSignalPatternMap[1] = v
 		case 3:
-			digitToCode[7] = v
+			digitToSignalPatternMap[7] = v
 		case 4:
-			digitToCode[4] = v
+			digitToSignalPatternMap[4] = v
 		case 5:
 			twoThreeFive = append(twoThreeFive, v)
 		case 6:
 			zeroSixNine = append(zeroSixNine, v)
 		case 7:
-			digitToCode[8] = v
+			digitToSignalPatternMap[8] = v
 		}
 	}
 	// 0 vs 8 = d
@@ -179,7 +179,7 @@ func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 	// -> Find Dif 8 vs 6-length ones gives us dce
 	dce := ""
 	for i := 0; i < len(zeroSixNine); i++ {
-		difference := diffAdditions(zeroSixNine[i], digitToCode[8])
+		difference := diffAdditions(zeroSixNine[i], digitToSignalPatternMap[8])
 		dce += difference
 	}
 
@@ -194,16 +194,16 @@ func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 				// 2 contains all of dce
 				// other part of the pair is 5
 				if len(diffAdditions(twoThreeFive[i], dce)) == 0 {
-					digitToCode[2] = twoThreeFive[i]
-					digitToCode[5] = twoThreeFive[k]
+					digitToSignalPatternMap[2] = twoThreeFive[i]
+					digitToSignalPatternMap[5] = twoThreeFive[k]
 				} else {
-					digitToCode[2] = twoThreeFive[k]
-					digitToCode[5] = twoThreeFive[i]
+					digitToSignalPatternMap[2] = twoThreeFive[k]
+					digitToSignalPatternMap[5] = twoThreeFive[i]
 				}
 				// three is the remaining
 				for index := range twoThreeFive {
 					if index != i && index != k {
-						digitToCode[3] = twoThreeFive[index]
+						digitToSignalPatternMap[3] = twoThreeFive[index]
 					}
 				}
 			}
@@ -214,19 +214,19 @@ func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 		// 5 vs 6 -> 1
 		// 5 vs 9 -> 1
 		// 5 vs 0 -> 2 !!!
-		difference := diffAdditions(digitToCode[5], v)
+		difference := diffAdditions(digitToSignalPatternMap[5], v)
 		if len(difference) == 2 {
-			digitToCode[0] = v
+			digitToSignalPatternMap[0] = v
 			continue
 		}
 
 		// 9 vs 7 -> 0 additions
 		// 6 vs 7 -> 1
-		difference = diffAdditions(v, digitToCode[7])
+		difference = diffAdditions(v, digitToSignalPatternMap[7])
 		if len(difference) == 0 {
-			digitToCode[9] = v
+			digitToSignalPatternMap[9] = v
 		} else {
-			digitToCode[6] = v
+			digitToSignalPatternMap[6] = v
 		}
 	}
 
