@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
@@ -20,17 +20,17 @@ func main() {
 	var result int
 
 	// brute force
-	result = findResult(crabHorizontalPosition, false, true)
+	result = findResult(crabHorizontalPosition, false, true, true)
 	fmt.Println(result)
 
-	result = findResult(crabHorizontalPosition, true, true)
+	result = findResult(crabHorizontalPosition, true, true, true)
 	fmt.Println(result)
 
 	// median and min sum triangular distance
-	result = findResult(crabHorizontalPosition, false, false)
+	result = findResult(crabHorizontalPosition, false, false, true)
 	fmt.Println(result)
 
-	result = findResult(crabHorizontalPosition, true, false)
+	result = findResult(crabHorizontalPosition, true, false, true)
 	fmt.Println(result)
 
 }
@@ -102,7 +102,7 @@ func findMinAndMax(sliceOfInts []int) (min int, max int) {
 	return
 }
 
-func findResult(numbers []int, variableRate bool, bruteforce bool) (result int) {
+func findResult(numbers []int, variableRate bool, bruteforce bool, triangularNumbersAware bool) (result int) {
 
 	var lowerBound, upperBound int
 	if bruteforce {
@@ -126,15 +126,15 @@ func findResult(numbers []int, variableRate bool, bruteforce bool) (result int) 
 			distance := int(math.Abs(float64(numbers[j] - i)))
 			cost := 0
 			if variableRate {
-				if bruteforce {
+				if triangularNumbersAware {
+					// triangular numbers n(n+1)/2 -> distsance = n = |ai-x|
+					cost = distance * (distance + 1) / 2
+				} else {
 					additional := 1
 					for k := 0; k < distance; k++ {
 						cost += additional
 						additional++
 					}
-				} else {
-					// triangular numbers n(n+1)/2 -> distsance = n = |ai-x|
-					cost = distance * (distance + 1) / 2
 				}
 			} else {
 				cost = distance
