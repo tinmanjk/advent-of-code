@@ -106,26 +106,19 @@ func decodeDigit(code string, segmentsDecodeMap map[rune]rune) (digit int) {
 func createSignalWireToSegmentMap(digitToSignalPatternMap map[int]string) (segmentsDecodeMap map[rune]rune) {
 
 	segmentsDecodeMap = make(map[rune]rune, 7)
-	// 1 vs 7 = a
 	a := rune(diffAdditions(digitToSignalPatternMap[1], digitToSignalPatternMap[7])[0])
 	segmentsDecodeMap[a] = 'a'
-	// 3 vs 5 = b
 	b := rune(diffAdditions(digitToSignalPatternMap[3], digitToSignalPatternMap[5])[0])
 	segmentsDecodeMap[b] = 'b'
-	// 6 vs 8 = c
 	c := rune(diffAdditions(digitToSignalPatternMap[6], digitToSignalPatternMap[8])[0])
 	segmentsDecodeMap[c] = 'c'
-	// 0 vs 8 = d
 	d := rune(diffAdditions(digitToSignalPatternMap[0], digitToSignalPatternMap[8])[0])
 	segmentsDecodeMap[d] = 'd'
-	// 9 vs 8 = e
 	e := rune(diffAdditions(digitToSignalPatternMap[9], digitToSignalPatternMap[8])[0])
 	segmentsDecodeMap[e] = 'e'
-	// 2 vs 3 = f
 	f := rune(diffAdditions(digitToSignalPatternMap[2], digitToSignalPatternMap[3])[0])
 	segmentsDecodeMap[f] = 'f'
 
-	// g - the one left
 	for _, r := range "abcdefg" {
 		if _, ok := segmentsDecodeMap[r]; !ok {
 			segmentsDecodeMap[r] = 'g'
