@@ -63,7 +63,7 @@ func findResult(solutionData []inputLine, partOne bool) (result int) {
 				}
 			} else {
 				result += multiplier * digit
-				multiplier = multiplier / 10
+				multiplier /= 10
 			}
 
 		}
@@ -122,22 +122,22 @@ func createSignalWireToSegmentMap(digitToUniqueMap map[int]string) (segmentsDeco
 
 	segmentsDecodeMap = make(map[rune]rune, 7)
 	// 1 vs 7 = a
-	a := rune(diff(digitToUniqueMap[1], digitToUniqueMap[7])[0])
+	a := rune(diffAdditions(digitToUniqueMap[1], digitToUniqueMap[7])[0])
 	segmentsDecodeMap[a] = 'a'
 	// 0 vs 8 = d
-	d := rune(diff(digitToUniqueMap[0], digitToUniqueMap[8])[0])
+	d := rune(diffAdditions(digitToUniqueMap[0], digitToUniqueMap[8])[0])
 	segmentsDecodeMap[d] = 'd'
 	// 6 vs 8 = c
-	c := rune(diff(digitToUniqueMap[6], digitToUniqueMap[8])[0])
+	c := rune(diffAdditions(digitToUniqueMap[6], digitToUniqueMap[8])[0])
 	segmentsDecodeMap[c] = 'c'
 	// 9 vs 8 = e
-	e := rune(diff(digitToUniqueMap[9], digitToUniqueMap[8])[0])
+	e := rune(diffAdditions(digitToUniqueMap[9], digitToUniqueMap[8])[0])
 	segmentsDecodeMap[e] = 'e'
 	// 2 vs 3 = f
-	f := rune(diff(digitToUniqueMap[2], digitToUniqueMap[3])[0])
+	f := rune(diffAdditions(digitToUniqueMap[2], digitToUniqueMap[3])[0])
 	segmentsDecodeMap[f] = 'f'
 	// 3 vs 5 = b
-	b := rune(diff(digitToUniqueMap[3], digitToUniqueMap[5])[0])
+	b := rune(diffAdditions(digitToUniqueMap[3], digitToUniqueMap[5])[0])
 	segmentsDecodeMap[b] = 'b'
 
 	// g - the one left
@@ -154,9 +154,8 @@ func createSignalWireToSegmentMap(digitToUniqueMap map[int]string) (segmentsDeco
 func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 	digitToCode = make(map[int]string, 0)
 
-	lengthPattern := make(map[int][]string, 0)
-	lengthPattern[5] = make([]string, 0)
-	lengthPattern[6] = make([]string, 0)
+	twoThreeFive := make([]string, 0)
+	zeroSixNine := make([]string, 0)
 	for _, v := range tenPattern {
 		length := len(v)
 		switch length {
@@ -166,10 +165,10 @@ func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 			digitToCode[7] = v
 		case 4:
 			digitToCode[4] = v
-		case 5: // 2 3 5
-			lengthPattern[5] = append(lengthPattern[5], v)
-		case 6: // 0, 6, 9
-			lengthPattern[6] = append(lengthPattern[6], v)
+		case 5:
+			twoThreeFive = append(twoThreeFive, v)
+		case 6:
+			zeroSixNine = append(zeroSixNine, v)
 		case 7:
 			digitToCode[8] = v
 		}
@@ -177,108 +176,64 @@ func createDigitToSignalMap(tenPattern []string) (digitToCode map[int]string) {
 	// 0 vs 8 = d
 	// 6 vs 8 = c
 	// 9 vs 8 = e
-	// -> Find Dif
+	// -> Find Dif 8 vs 6-length ones gives us dce
 	dce := ""
-	for i := 0; i < len(lengthPattern[6]); i++ {
-		difference := diff(lengthPattern[6][i], digitToCode[8])
+	for i := 0; i < len(zeroSixNine); i++ {
+		difference := diffAdditions(zeroSixNine[i], digitToCode[8])
 		dce += difference
 	}
 
 	// find 2, 3, 5
-	// 2 vs 5 -> 2
+	// 2 vs 5 -> 2 !!!
 	// 2 vs 3 -> 1
 	// 3 vs 5 -> 1
-	case0v1 := diff(lengthPattern[5][0], lengthPattern[5][1])
-	case1v2 := diff(lengthPattern[5][1], lengthPattern[5][2])
-	case0v2 := diff(lengthPattern[5][0], lengthPattern[5][2])
-	switch {
-	case len(case0v1) == 2: // 2 i 5
-		digitToCode[3] = lengthPattern[5][2]
-		// v dce tarsim .. ako containva vsichkite - znachi e 2, inache e 5
-		if containsAllRunesFromPattern(lengthPattern[5][0], dce) {
-			digitToCode[2] = lengthPattern[5][0]
-			digitToCode[5] = lengthPattern[5][1]
-		} else {
-			digitToCode[2] = lengthPattern[5][1]
-			digitToCode[5] = lengthPattern[5][0]
-		}
-
-	case len(case1v2) == 2: // 2 i5
-		digitToCode[3] = lengthPattern[5][0]
-		if containsAllRunesFromPattern(lengthPattern[5][1], dce) {
-			digitToCode[2] = lengthPattern[5][1]
-			digitToCode[5] = lengthPattern[5][2]
-		} else {
-			digitToCode[2] = lengthPattern[5][2]
-			digitToCode[5] = lengthPattern[5][1]
-		}
-	case len(case0v2) == 2: // 2 i 5
-		digitToCode[3] = lengthPattern[5][1]
-		if containsAllRunesFromPattern(lengthPattern[5][0], dce) {
-			digitToCode[2] = lengthPattern[5][0]
-			digitToCode[5] = lengthPattern[5][2]
-		} else {
-			digitToCode[2] = lengthPattern[5][2]
-			digitToCode[5] = lengthPattern[5][0]
+	for i := 0; i < len(twoThreeFive); i++ {
+		for k := i + 1; k < len(twoThreeFive); k++ {
+			differences := len(diffAdditions(twoThreeFive[i], twoThreeFive[k]))
+			if differences == 2 {
+				// 2 contains all of dce
+				// other part of the pair is 5
+				if len(diffAdditions(twoThreeFive[i], dce)) == 0 {
+					digitToCode[2] = twoThreeFive[i]
+					digitToCode[5] = twoThreeFive[k]
+				} else {
+					digitToCode[2] = twoThreeFive[k]
+					digitToCode[5] = twoThreeFive[i]
+				}
+				// three is the remaining
+				for index := range twoThreeFive {
+					if index != i && index != k {
+						digitToCode[3] = twoThreeFive[index]
+					}
+				}
+			}
 		}
 	}
 
-	// 5 vs 0 vs 6 vs 9 -> if 2 razliki
-
-	for i := 0; i < len(lengthPattern[6]); i++ {
-		difference := diff(digitToCode[5], lengthPattern[6][i])
+	for _, v := range zeroSixNine {
+		// 5 vs 6 -> 1
+		// 5 vs 9 -> 1
+		// 5 vs 0 -> 2 !!!
+		difference := diffAdditions(digitToCode[5], v)
 		if len(difference) == 2 {
-			digitToCode[0] = lengthPattern[6][i]
-		}
-	}
-
-	// 7miciata se vklucva izqcalo v 9kata, dokato ne v 6
-	for i := 0; i < len(lengthPattern[6]); i++ {
-		// we do have 0
-		if lengthPattern[6][i] == digitToCode[0] {
+			digitToCode[0] = v
 			continue
 		}
 
-		// namirame 9kata
-		contains := true
-		for _, r := range digitToCode[7] {
-			if !strings.Contains(lengthPattern[6][i], string(r)) {
-				contains = false
-			}
-		}
-		if contains {
-			digitToCode[9] = lengthPattern[6][i]
-		}
-	}
-
-	// namirame 6ca
-	for i := 0; i < len(lengthPattern[6]); i++ {
-		found := false
-		for _, v := range digitToCode {
-			if v == lengthPattern[6][i] {
-				found = true
-			}
-		}
-		if !found {
-			digitToCode[6] = lengthPattern[6][i]
-			break
+		// 9 vs 7 -> 0 additions
+		// 6 vs 7 -> 1
+		difference = diffAdditions(v, digitToCode[7])
+		if len(difference) == 0 {
+			digitToCode[9] = v
+		} else {
+			digitToCode[6] = v
 		}
 	}
 
 	return
 }
 
-func containsAllRunesFromPattern(str string, pattern string) bool {
-
-	for _, r := range pattern {
-		if !strings.ContainsRune(str, r) {
-			return false
-		}
-	}
-	return true
-}
-
-func diff(left string, right string) string {
+func diffAdditions(left string, right string) string {
 	temp := make([]rune, 0)
 	for _, r := range right {
 		if !strings.ContainsRune(left, r) {
