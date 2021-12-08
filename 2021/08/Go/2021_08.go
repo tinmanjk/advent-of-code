@@ -124,21 +124,21 @@ func createSignalWireToSegmentMap(digitToUniqueMap map[int]string) (segmentsDeco
 	// 1 vs 7 = a
 	a := rune(diffAdditions(digitToUniqueMap[1], digitToUniqueMap[7])[0])
 	segmentsDecodeMap[a] = 'a'
-	// 0 vs 8 = d
-	d := rune(diffAdditions(digitToUniqueMap[0], digitToUniqueMap[8])[0])
-	segmentsDecodeMap[d] = 'd'
+	// 3 vs 5 = b
+	b := rune(diffAdditions(digitToUniqueMap[3], digitToUniqueMap[5])[0])
+	segmentsDecodeMap[b] = 'b'
 	// 6 vs 8 = c
 	c := rune(diffAdditions(digitToUniqueMap[6], digitToUniqueMap[8])[0])
 	segmentsDecodeMap[c] = 'c'
+	// 0 vs 8 = d
+	d := rune(diffAdditions(digitToUniqueMap[0], digitToUniqueMap[8])[0])
+	segmentsDecodeMap[d] = 'd'
 	// 9 vs 8 = e
 	e := rune(diffAdditions(digitToUniqueMap[9], digitToUniqueMap[8])[0])
 	segmentsDecodeMap[e] = 'e'
 	// 2 vs 3 = f
 	f := rune(diffAdditions(digitToUniqueMap[2], digitToUniqueMap[3])[0])
 	segmentsDecodeMap[f] = 'f'
-	// 3 vs 5 = b
-	b := rune(diffAdditions(digitToUniqueMap[3], digitToUniqueMap[5])[0])
-	segmentsDecodeMap[b] = 'b'
 
 	// g - the one left
 	for _, r := range "abcdefg" {
