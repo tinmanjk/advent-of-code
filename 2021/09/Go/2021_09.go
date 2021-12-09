@@ -21,8 +21,8 @@ func main() {
 	result = findResult(solutionData, true)
 	fmt.Println(result)
 
-	// result = findResult(solutionData, false)
-	// fmt.Println(result)
+	result = findResult(solutionData, false)
+	fmt.Println(result)
 }
 
 func parseInput(slicesOfLines []string) (matrixLocations [][]int) {
@@ -52,21 +52,26 @@ func parseInput(slicesOfLines []string) (matrixLocations [][]int) {
 
 func findResult(solutionData [][]int, partOne bool) (result int) {
 
-	// 9 is highest, 0 is lowest
-	// risk level = 1 + height
-	// sum of the risk
-	// 0 matrix
 	lengthTOtalLines := len(solutionData)
 	lenghSingleLine := len(solutionData[0])
-	// map ot points
 
 	listOfPoints := make([]*point, 0)
-	// mapOfPoints := make(map[point]*point, 0)
 	for i := 1; i < lengthTOtalLines-1; i++ {
 		for j := 1; j < lenghSingleLine-1; j++ {
 
 			current := solutionData[i][j]
 			if current == blockValue {
+				continue
+			}
+
+			if partOne {
+				left := solutionData[i][j-1]
+				right := solutionData[i][j+1]
+				up := solutionData[i-1][j]
+				down := solutionData[i+1][j]
+				if current < left && current < right && current < up && current < down {
+					result += current + 1
+				}
 				continue
 			}
 
@@ -99,8 +104,7 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 				upPoint := findPoint(i-1, j, listOfPoints)
 
 				switch {
-				// tuk ideqta beshe che leftPoint = 1 924 000 ... poßmalko ot rezultata
-				case len(*upPoint.basin) > len(*leftPoint.basin): // up is strictly bigger
+				case len(*upPoint.basin) > len(*leftPoint.basin):
 					if len(*leftPoint.basin) > 1 {
 						for _, p := range *leftPoint.basin {
 							// bez left
@@ -114,7 +118,7 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 					*(upPoint.basin) = append(*(upPoint.basin), &newPoint)
 					leftPoint.basin = upPoint.basin
 					newPoint.basin = upPoint.basin
-				case len(*leftPoint.basin) > len(*upPoint.basin): // up is strictly smaller
+				case len(*leftPoint.basin) > len(*upPoint.basin):
 					if len(*upPoint.basin) > 1 {
 						for _, p := range *upPoint.basin {
 							// bez left
@@ -128,12 +132,10 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 					*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
 					upPoint.basin = leftPoint.basin
 					newPoint.basin = leftPoint.basin
-				default: // equal length
-					// nqkakav special case imame tuk !!!!!
+				default: //TODO: fix logic to be complete
 					equal := &(*leftPoint.basin) == &(*upPoint.basin)
 					if !equal {
 					}
-					// i= 2 i y=6
 					if len(*upPoint.basin) == 1 {
 						*(leftPoint.basin) = append(*(leftPoint.basin), upPoint)
 						*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
@@ -149,24 +151,24 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 		}
 	}
 
-	// find basins
-	pesho := make(map[*[]*point]int, 0)
-	fmt.Println(pesho)
+	if partOne {
+		return result
+	}
+
+	basins := make(map[*[]*point]int, 0)
 	for _, v := range listOfPoints {
-		// if _, ok := pesho[v.basin]; !ok {
-		pesho[v.basin] = len(*v.basin)
-		// }
+		basins[v.basin] = len(*v.basin)
 	}
 
 	basinSizes := make([]int, 0)
-	for _, v := range pesho {
+	for _, v := range basins {
 		basinSizes = append(basinSizes, v)
 	}
-
 	sort.Ints(basinSizes)
+
 	result = 1
-	for i := 0; i < 3; i++ {
-		basinSize := basinSizes[len(basinSizes)-1-i]
+	for i := 1; i <= 3; i++ {
+		basinSize := basinSizes[len(basinSizes)-i]
 		result *= basinSize
 	}
 
@@ -188,25 +190,6 @@ type point struct {
 	j     int
 	basin *[]*point
 }
-
-// type basin struct{
-// 	name string
-// }
-
-// 2199943210
-// 3987894921
-// 9856789892
-// 8767896789
-// 9899965678
-
-// func findResult2
-// izchakvame parvite chetiri posoki
-// ako otlqvo ne e 9, testvame otgore
-// puskame nov basin
-
-// butam e ti kazvam che sam 9 za ne se vrashtash
-// for each point go to all four directions
-// return nqkakva suma
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	file, err := os.Open(filePath)
