@@ -14,74 +14,115 @@ const blockValue = 9
 
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
-	solutionData := parseInput(lines)
-
+	inputData := parseInput(lines)
 	var result int
 
-	result = findResult(solutionData, true)
+	// part 1
+	lowPoints := findLowPoints(inputData)
+	result = findSumRiskLevels(lowPoints)
 	fmt.Println(result)
 
-	result = findResult(solutionData, false)
+	// part 2
+	result = findThreeLargestBasins(inputData)
 	fmt.Println(result)
 }
 
-func parseInput(slicesOfLines []string) (matrixLocations [][]int) {
+func parseInput(slicesOfLines []string) (solutionsData [][]int) {
 
-	length := len(slicesOfLines) + 2
-	matrixLocations = make([][]int, length)
-	otherLength := len(slicesOfLines[0]) + 2
-	for i := 0; i < length; i++ {
-		matrixLocations[i] = make([]int, otherLength)
-		if i == 0 || i == length-1 {
-			for j := 0; j < otherLength; j++ {
-				matrixLocations[i][j] = blockValue
-			}
-			continue
-		}
-		line := slicesOfLines[i-1]
-		matrixLocations[i][0] = blockValue
-		matrixLocations[i][otherLength-1] = blockValue
-
-		for j := 1; j < otherLength-1; j++ {
-			matrixLocations[i][j] = int(line[j-1]) - 48
+	lengthTotalLines := len(slicesOfLines)
+	lenghSingleLine := len(slicesOfLines[0]) // should be the same for all
+	solutionsData = make([][]int, lengthTotalLines)
+	for i := 0; i < lengthTotalLines; i++ {
+		solutionsData[i] = make([]int, lenghSingleLine)
+		for j := 0; j < lenghSingleLine; j++ {
+			solutionsData[i][j] = int(slicesOfLines[i][j] - '0')
 		}
 	}
 
 	return
 }
 
-func findResult(solutionData [][]int, partOne bool) (result int) {
+func addPaddings(solutionsData [][]int, paddedValue int) (paddedSolutionsData [][]int) {
 
-	lengthTOtalLines := len(solutionData)
-	lenghSingleLine := len(solutionData[0])
+	paddedSolutionsData = make([][]int, len(solutionsData))
+	for i := 0; i < len(solutionsData); i++ {
+		paddedSolutionsData[i] = append([]int{paddedValue}, solutionsData[i]...)
+		paddedSolutionsData[i] = append(paddedSolutionsData[i], paddedValue)
+	}
 
-	mapOfPoints := make(map[pointCoord]*point, 0)
-	mapLowPoints := make(map[pointCoord]*point, 0)
-	for i := 1; i < lengthTOtalLines-1; i++ {
+	lenghtPaddedSingleLine := len(solutionsData[0]) + 2 // should be the same for all
+	paddedBeginRow := make([]int, lenghtPaddedSingleLine)
+	for i := 0; i < len(paddedBeginRow); i++ {
+		paddedBeginRow[i] = paddedValue
+	}
+	paddedEndRow := make([]int, lenghtPaddedSingleLine)
+	copy(paddedEndRow, paddedBeginRow)
+
+	paddedMatrix := make([][]int, 0)
+	paddedMatrix = append(paddedMatrix, paddedBeginRow)
+
+	paddedSolutionsData = append(paddedMatrix, paddedSolutionsData...)
+	paddedSolutionsData = append(paddedSolutionsData, paddedEndRow)
+
+	return
+}
+
+func findLowPoints(inputData [][]int) (mapLowPoints map[pointCoord]*point) {
+
+	paddedMatrix := addPaddings(inputData, blockValue)
+	lengthTotalLines := len(paddedMatrix)
+	lenghSingleLine := len(paddedMatrix[0]) // should be the same for all
+	mapLowPoints = make(map[pointCoord]*point, 0)
+
+	for i := 1; i < lengthTotalLines-1; i++ {
 		for j := 1; j < lenghSingleLine-1; j++ {
 
-			current := solutionData[i][j]
+			current := paddedMatrix[i][j]
 			if current == blockValue {
 				continue
 			}
 
 			currentPoint := point{pointCoord{i, j}, current, nil}
 
-			if partOne {
-				left := solutionData[i][j-1]
-				right := solutionData[i][j+1]
-				up := solutionData[i-1][j]
-				down := solutionData[i+1][j]
-				if current < left && current < right && current < up && current < down {
-					mapLowPoints[pointCoord{i, j}] = &currentPoint
-				}
+			left := paddedMatrix[i][j-1]
+			right := paddedMatrix[i][j+1]
+			up := paddedMatrix[i-1][j]
+			down := paddedMatrix[i+1][j]
+			if current < left && current < right && current < up && current < down {
+				mapLowPoints[pointCoord{i, j}] = &currentPoint
+			}
+		}
+	}
+	return
+}
+
+func findSumRiskLevels(mapLowPoints map[pointCoord]*point) (result int) {
+	for _, v := range mapLowPoints {
+		result += *&v.val + 1
+	}
+	return result
+}
+
+func findThreeLargestBasins(inputData [][]int) (result int) {
+
+	paddedMatrix := addPaddings(inputData, blockValue)
+	lengthTotalLines := len(paddedMatrix)
+	lenghSingleLine := len(paddedMatrix[0])
+	mapOfPoints := make(map[pointCoord]*point, 0)
+
+	for i := 1; i < lengthTotalLines-1; i++ {
+		for j := 1; j < lenghSingleLine-1; j++ {
+
+			current := paddedMatrix[i][j]
+			if current == blockValue {
 				continue
 			}
 
+			currentPoint := point{pointCoord{i, j}, current, nil}
 			mapOfPoints[currentPoint.coord] = &currentPoint
 
-			noLeft := (solutionData[i][j-1] == blockValue)
-			noUp := (solutionData[i-1][j] == blockValue)
+			noLeft := (paddedMatrix[i][j-1] == blockValue)
+			noUp := (paddedMatrix[i-1][j] == blockValue)
 			up := !noUp
 			left := !noLeft
 
@@ -117,13 +158,6 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 			*(joinBasin) = append(*(joinBasin), &currentPoint)
 			currentPoint.basin = joinBasin
 		}
-	}
-
-	if partOne {
-		for _, v := range mapLowPoints {
-			result += *&v.val + 1
-		}
-		return result
 	}
 
 	basinsHashSet := make(map[*[]*point]bool, 0)
