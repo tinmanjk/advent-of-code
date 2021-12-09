@@ -55,7 +55,7 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 	lengthTOtalLines := len(solutionData)
 	lenghSingleLine := len(solutionData[0])
 
-	listOfPoints := make([]*point, 0)
+	mapOfPoints := make(map[pointCoord]*point, 0)
 	for i := 1; i < lengthTOtalLines-1; i++ {
 		for j := 1; j < lenghSingleLine-1; j++ {
 
@@ -75,8 +75,8 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 				continue
 			}
 
-			newPoint := point{current, i, j, nil}
-			listOfPoints = append(listOfPoints, &newPoint)
+			newPoint := point{current, pointCoord{i, j}, nil}
+			mapOfPoints[newPoint.coord] = &newPoint
 
 			noLeft := (solutionData[i][j-1] == blockValue)
 			noUp := (solutionData[i-1][j] == blockValue)
@@ -89,14 +89,14 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 				newBasin := make([]*point, 0)
 				joinBasin = &newBasin
 			case noLeft && up: // join up
-				upPoint := findPoint(i-1, j, listOfPoints)
+				upPoint := mapOfPoints[pointCoord{i - 1, j}]
 				joinBasin = upPoint.basin
 			case left && noUp: // join left
-				leftPoint := findPoint(i, j-1, listOfPoints)
+				leftPoint := mapOfPoints[pointCoord{i, j - 1}]
 				joinBasin = leftPoint.basin
 			case left && up: // MERGE
-				leftPoint := findPoint(i, j-1, listOfPoints)
-				upPoint := findPoint(i-1, j, listOfPoints)
+				leftPoint := mapOfPoints[pointCoord{i, j - 1}]
+				upPoint := mapOfPoints[pointCoord{i - 1, j}]
 
 				if len(*upPoint.basin) > len(*leftPoint.basin) {
 					mergeBasins(leftPoint, upPoint)
@@ -123,7 +123,7 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 
 	basinsHashSet := make(map[*[]*point]bool, 0)
 	basinSizes := make([]int, 0)
-	for _, v := range listOfPoints {
+	for _, v := range mapOfPoints {
 		if _, ok := basinsHashSet[v.basin]; !ok {
 			basinsHashSet[v.basin] = true
 			basinSizes = append(basinSizes, len(*v.basin))
@@ -146,19 +146,15 @@ func mergeBasins(srcBasin *point, destBasin *point) {
 	}
 }
 
-func findPoint(i int, j int, listOfPoints []*point) *point {
-	for _, v := range listOfPoints {
-		if v.i == i && v.j == j {
-			return v
-		}
-	}
-	return nil
+type pointCoord struct {
+	i int
+	j int
 }
-
 type point struct {
 	val   int
-	i     int
-	j     int
+	coord pointCoord
+	// i     int
+	// j     int
 	basin *[]*point
 }
 
