@@ -83,9 +83,6 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 			up := !noUp
 			left := !noLeft
 
-			// from left to right
-			// top to bottom
-			// traversing
 			switch {
 			case noLeft && noUp: // Start new basin
 				newBasin := make([]*point, 0)
@@ -103,51 +100,23 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 				leftPoint := findPoint(i, j-1, listOfPoints)
 				upPoint := findPoint(i-1, j, listOfPoints)
 
-				switch {
-				case len(*upPoint.basin) > len(*leftPoint.basin):
-					if len(*leftPoint.basin) > 1 {
-						for _, p := range *leftPoint.basin {
-							// bez left
-							if p != leftPoint {
-								*(upPoint.basin) = append(*(upPoint.basin), p)
-								p.basin = upPoint.basin
-							}
-						}
-					}
-					*(upPoint.basin) = append(*(upPoint.basin), leftPoint)
+				if len(*leftPoint.basin) < len(*upPoint.basin) {
+					mergeBasins(leftPoint, upPoint)
 					*(upPoint.basin) = append(*(upPoint.basin), &newPoint)
-					leftPoint.basin = upPoint.basin
 					newPoint.basin = upPoint.basin
-				case len(*leftPoint.basin) > len(*upPoint.basin):
-					if len(*upPoint.basin) > 1 {
-						for _, p := range *upPoint.basin {
-							// bez left
-							if p != upPoint {
-								*(leftPoint.basin) = append(*(leftPoint.basin), p)
-								p.basin = leftPoint.basin
-							}
-						}
-					}
-					*(leftPoint.basin) = append(*(leftPoint.basin), upPoint)
+				} else if len(*upPoint.basin) < len(*leftPoint.basin) {
+					mergeBasins(upPoint, leftPoint)
 					*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
-					upPoint.basin = leftPoint.basin
 					newPoint.basin = leftPoint.basin
-				default: //TODO: fix logic to be complete
-					equal := &(*leftPoint.basin) == &(*upPoint.basin)
-					if !equal {
-					}
-					if len(*upPoint.basin) == 1 {
-						*(leftPoint.basin) = append(*(leftPoint.basin), upPoint)
-						*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
-						upPoint.basin = leftPoint.basin
-						newPoint.basin = leftPoint.basin
-						break
+				} else { // Equal number
+					sameBasin := &(*leftPoint.basin) == &(*upPoint.basin)
+					if !sameBasin {
+						mergeBasins(upPoint, leftPoint)
 					}
 					*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
 					newPoint.basin = leftPoint.basin
 				}
 			}
-
 		}
 	}
 
@@ -155,17 +124,15 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 		return result
 	}
 
-	basins := make(map[*[]*point]int, 0)
-	for _, v := range listOfPoints {
-		basins[v.basin] = len(*v.basin)
-	}
-
+	basinsHashSet := make(map[*[]*point]bool, 0)
 	basinSizes := make([]int, 0)
-	for _, v := range basins {
-		basinSizes = append(basinSizes, v)
+	for _, v := range listOfPoints {
+		if _, ok := basinsHashSet[v.basin]; !ok {
+			basinsHashSet[v.basin] = true
+			basinSizes = append(basinSizes, len(*v.basin))
+		}
 	}
 	sort.Ints(basinSizes)
-
 	result = 1
 	for i := 1; i <= 3; i++ {
 		basinSize := basinSizes[len(basinSizes)-i]
@@ -173,6 +140,13 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 	}
 
 	return
+}
+
+func mergeBasins(srcBasin *point, destBasin *point) {
+	for _, p := range *srcBasin.basin {
+		*(destBasin.basin) = append(*(destBasin.basin), p)
+		p.basin = destBasin.basin
+	}
 }
 
 func findPoint(i int, j int, listOfPoints []*point) *point {
