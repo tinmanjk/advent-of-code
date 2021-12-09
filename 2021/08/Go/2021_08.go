@@ -86,14 +86,14 @@ func createSignalWireToSegmentMap(tenPattern []string) (decodeTemplate map[byte]
 		}
 	}
 
-	a := diffAdditions(cf, acf)
+	a := setDiff(cf, acf)
 	abcdf := a + bcdf
 	// abcdf -> "acdeg": 2, -> eg
 	// abcdf -> "acdfg": 3, -> g
 	// abcdf -> "abdfg": 5, -> g
 	var acdeg, eg, g string
 	for _, s := range twoThreeFive {
-		diff := diffAdditions(abcdf, s)
+		diff := setDiff(abcdf, s)
 		if len(diff) == 2 {
 			acdeg = s // 2
 			eg = diff
@@ -102,16 +102,16 @@ func createSignalWireToSegmentMap(tenPattern []string) (decodeTemplate map[byte]
 		}
 	}
 
-	e := diffAdditions(g, eg)
+	e := setDiff(g, eg)
 	aeg := a + eg
-	cd := diffAdditions(aeg, acdeg)
-	bd := diffAdditions(cf, bcdf)
+	cd := setDiff(aeg, acdeg)
+	bd := setDiff(cf, bcdf)
 
 	// cf - cd - bd
-	b := diffAdditions(cd, bd)
-	c := diffAdditions(bd, cd)
-	d := diffAdditions(cf, cd)
-	f := diffAdditions(cd, cf)
+	b := setDiff(cd, bd)
+	c := setDiff(bd, cd)
+	d := setDiff(cf, cd)
+	f := setDiff(cd, cf)
 
 	decodeTemplate = make(map[byte]byte, 0)
 	decodeTemplate[a[0]] = 'a'
@@ -157,7 +157,9 @@ func decodeDigit(code string, segmentsDecodeMap map[byte]byte) (digit int) {
 	return
 }
 
-func diffAdditions(left string, right string) string {
+// https://en.wikipedia.org/wiki/Complement_(set_theory)#Relative_complement
+// returns the elements of right which are not part of left
+func setDiff(left string, right string) string {
 	temp := make([]rune, 0)
 	for _, r := range right {
 		if !strings.ContainsRune(left, r) {
