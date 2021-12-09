@@ -85,10 +85,9 @@ func createSignalWireToSegmentMap(tenPattern []string) (decodeTemplate map[byte]
 			twoThreeFive = append(twoThreeFive, s)
 		}
 	}
-	a := diffAdditions(cf, acf)
-	bd := diffAdditions(cf, bcdf)
-	abcdf := a + cf + bd
 
+	a := diffAdditions(cf, acf)
+	abcdf := a + bcdf
 	// abcdf -> "acdeg": 2, -> eg
 	// abcdf -> "acdfg": 3, -> g
 	// abcdf -> "abdfg": 5, -> g
@@ -104,12 +103,15 @@ func createSignalWireToSegmentMap(tenPattern []string) (decodeTemplate map[byte]
 	}
 
 	e := diffAdditions(g, eg)
-	aeg := a + e + g
+	aeg := a + eg
 	cd := diffAdditions(aeg, acdeg)
+	bd := diffAdditions(cf, bcdf)
+
+	// cf - cd - bd
 	b := diffAdditions(cd, bd)
+	c := diffAdditions(bd, cd)
 	d := diffAdditions(cf, cd)
 	f := diffAdditions(cd, cf)
-	c := diffAdditions(d, cd)
 
 	decodeTemplate = make(map[byte]byte, 0)
 	decodeTemplate[a[0]] = 'a'
