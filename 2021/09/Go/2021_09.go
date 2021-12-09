@@ -83,40 +83,37 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 			up := !noUp
 			left := !noLeft
 
+			var joinBasin *[]*point
 			switch {
 			case noLeft && noUp: // Start new basin
 				newBasin := make([]*point, 0)
-				newBasin = append(newBasin, &newPoint)
-				newPoint.basin = &newBasin
+				joinBasin = &newBasin
 			case noLeft && up: // join up
 				upPoint := findPoint(i-1, j, listOfPoints)
-				*(upPoint.basin) = append(*(upPoint.basin), &newPoint)
-				newPoint.basin = upPoint.basin
+				joinBasin = upPoint.basin
 			case left && noUp: // join left
 				leftPoint := findPoint(i, j-1, listOfPoints)
-				*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
-				newPoint.basin = leftPoint.basin
+				joinBasin = leftPoint.basin
 			case left && up: // MERGE
 				leftPoint := findPoint(i, j-1, listOfPoints)
 				upPoint := findPoint(i-1, j, listOfPoints)
 
-				if len(*leftPoint.basin) < len(*upPoint.basin) {
+				if len(*upPoint.basin) > len(*leftPoint.basin) {
 					mergeBasins(leftPoint, upPoint)
-					*(upPoint.basin) = append(*(upPoint.basin), &newPoint)
-					newPoint.basin = upPoint.basin
-				} else if len(*upPoint.basin) < len(*leftPoint.basin) {
+				} else if len(*leftPoint.basin) > len(*upPoint.basin) {
 					mergeBasins(upPoint, leftPoint)
-					*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
-					newPoint.basin = leftPoint.basin
 				} else { // Equal number
-					sameBasin := &(*leftPoint.basin) == &(*upPoint.basin)
-					if !sameBasin {
+					differentBasins := !(&(*leftPoint.basin) == &(*upPoint.basin))
+					if differentBasins {
 						mergeBasins(upPoint, leftPoint)
 					}
-					*(leftPoint.basin) = append(*(leftPoint.basin), &newPoint)
-					newPoint.basin = leftPoint.basin
 				}
+				// already merged doesn't matter which one (left or up point to the same basin)
+				joinBasin = leftPoint.basin
 			}
+
+			*(joinBasin) = append(*(joinBasin), &newPoint)
+			newPoint.basin = joinBasin
 		}
 	}
 
