@@ -56,6 +56,7 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 	lenghSingleLine := len(solutionData[0])
 
 	mapOfPoints := make(map[pointCoord]*point, 0)
+	mapLowPoints := make(map[pointCoord]*point, 0)
 	for i := 1; i < lengthTOtalLines-1; i++ {
 		for j := 1; j < lenghSingleLine-1; j++ {
 
@@ -64,19 +65,20 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 				continue
 			}
 
+			currentPoint := point{pointCoord{i, j}, current, nil}
+
 			if partOne {
 				left := solutionData[i][j-1]
 				right := solutionData[i][j+1]
 				up := solutionData[i-1][j]
 				down := solutionData[i+1][j]
 				if current < left && current < right && current < up && current < down {
-					result += current + 1
+					mapLowPoints[pointCoord{i, j}] = &currentPoint
 				}
 				continue
 			}
 
-			newPoint := point{current, pointCoord{i, j}, nil}
-			mapOfPoints[newPoint.coord] = &newPoint
+			mapOfPoints[currentPoint.coord] = &currentPoint
 
 			noLeft := (solutionData[i][j-1] == blockValue)
 			noUp := (solutionData[i-1][j] == blockValue)
@@ -112,12 +114,15 @@ func findResult(solutionData [][]int, partOne bool) (result int) {
 				joinBasin = leftPoint.basin
 			}
 
-			*(joinBasin) = append(*(joinBasin), &newPoint)
-			newPoint.basin = joinBasin
+			*(joinBasin) = append(*(joinBasin), &currentPoint)
+			currentPoint.basin = joinBasin
 		}
 	}
 
 	if partOne {
+		for _, v := range mapLowPoints {
+			result += *&v.val + 1
+		}
 		return result
 	}
 
@@ -151,10 +156,8 @@ type pointCoord struct {
 	j int
 }
 type point struct {
-	val   int
 	coord pointCoord
-	// i     int
-	// j     int
+	val   int
 	basin *[]*point
 }
 
