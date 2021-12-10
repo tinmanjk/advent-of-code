@@ -98,7 +98,7 @@ func findLowPoints(inputData [][]int) (mapLowPoints map[pointCoord]*point) {
 
 func findSumRiskLevels(mapLowPoints map[pointCoord]*point) (result int) {
 	for _, v := range mapLowPoints {
-		result += *&v.val + 1
+		result += v.val + 1 // automatic dereferencing in go (*v).val = v.val
 	}
 	return result
 }
@@ -141,21 +141,15 @@ func findThreeLargestBasins(inputData [][]int) (result int) {
 				leftPoint := mapOfPoints[pointCoord{i, j - 1}]
 				upPoint := mapOfPoints[pointCoord{i - 1, j}]
 
-				if len(*upPoint.basin) > len(*leftPoint.basin) {
-					mergeBasins(leftPoint, upPoint)
-				} else if len(*leftPoint.basin) > len(*upPoint.basin) {
-					mergeBasins(upPoint, leftPoint)
-				} else { // Equal number
-					differentBasins := !(&(*leftPoint.basin) == &(*upPoint.basin))
-					if differentBasins {
-						mergeBasins(upPoint, leftPoint)
-					}
+				differentBasins := !(leftPoint.basin == upPoint.basin)
+				if differentBasins {
+					mergeBasins(upPoint.basin, leftPoint.basin)
 				}
 				// already merged doesn't matter which one (left or up point to the same basin)
 				joinBasin = leftPoint.basin
 			}
 
-			*(joinBasin) = append(*(joinBasin), &currentPoint)
+			*joinBasin = append(*joinBasin, &currentPoint)
 			currentPoint.basin = joinBasin
 		}
 	}
@@ -178,10 +172,19 @@ func findThreeLargestBasins(inputData [][]int) (result int) {
 	return
 }
 
-func mergeBasins(srcBasin *point, destBasin *point) {
-	for _, p := range *srcBasin.basin {
-		*(destBasin.basin) = append(*(destBasin.basin), p)
-		p.basin = destBasin.basin
+func mergeBasins(bas1 *[]*point, bas2 *[]*point) {
+	// merge smaller into bigger
+	var smallerBasin, biggerBasin *[]*point
+	if len(*bas1) <= len(*bas2) {
+		smallerBasin = bas1
+		biggerBasin = bas2
+	} else {
+		smallerBasin = bas2
+		biggerBasin = bas1
+	}
+	for _, p := range *smallerBasin {
+		*biggerBasin = append(*biggerBasin, p)
+		p.basin = biggerBasin
 	}
 }
 
