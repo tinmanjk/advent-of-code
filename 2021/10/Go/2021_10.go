@@ -24,12 +24,6 @@ func main() {
 	fmt.Println(result)
 }
 
-// line - 1 or more chunks, chunks - zero or more chunks
-// no delimiter separation
-// open close - delimiter basically
-// ( ) [ ] { } <>
-// () empty chunk
-
 // corrupted vs incomplete
 // corrupted -> closes with WRONG char (}
 // WHOLE line corrupted if ONE
@@ -47,25 +41,28 @@ func main() {
 
 func findResult(inputData []string, partOne bool) (result int) {
 
-	incorectCharMap := make(map[rune]int, 4)
-	incorectCharMap[')'] = 3
-	incorectCharMap[']'] = 57
-	incorectCharMap['}'] = 1197
-	incorectCharMap['>'] = 25137
+	incorrectRunetoScore := map[rune]int{
+		')': 3,
+		']': 57,
+		'}': 1197,
+		'>': 25137,
+	}
 
-	incompleteCharMap := make(map[rune]int, 4)
-	incompleteCharMap[')'] = 1
-	incompleteCharMap[']'] = 2
-	incompleteCharMap['}'] = 3
-	incompleteCharMap['>'] = 4
+	incompleteRuneToScore := map[rune]int{
+		')': 1,
+		']': 2,
+		'}': 3,
+		'>': 4,
+	}
 
 	// open and closing
 	openingRunes := "([{<"
-	closingRunes := make(map[rune]rune, 4)
-	closingRunes['('] = ')'
-	closingRunes['['] = ']'
-	closingRunes['{'] = '}'
-	closingRunes['<'] = '>'
+	openToCloseRune := map[rune]rune{
+		'(': ')',
+		'[': ']',
+		'{': '}',
+		'<': '>',
+	}
 
 	scores := make([]int, 0)
 	for _, line := range inputData {
@@ -73,13 +70,13 @@ func findResult(inputData []string, partOne bool) (result int) {
 		s := make(stack, 0)
 		for _, r := range line {
 			if strings.ContainsRune(openingRunes, r) {
-				s.Push(closingRunes[r])
+				s.Push(openToCloseRune[r])
 				continue
 			}
 			p, _ := s.Pop()
 			if p != r {
 				if partOne {
-					result += incorectCharMap[r]
+					result += incorrectRunetoScore[r]
 				}
 				lineCorrupt = true
 				break
@@ -97,7 +94,7 @@ func findResult(inputData []string, partOne bool) (result int) {
 				break
 			}
 			totalScore *= 5
-			totalScore += incompleteCharMap[p]
+			totalScore += incompleteRuneToScore[p]
 		}
 		scores = append(scores, totalScore)
 	}
