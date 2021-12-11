@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -64,17 +65,17 @@ func findResult(inputData []string, partOne bool) (result int) {
 		'<': '>',
 	}
 
-	scores := make([]int, 0)
+	scores := []int{}
 	for _, line := range inputData {
 		lineCorrupt := false
-		s := make(stack, 0)
+		closingRunes := stack{}
 		for _, r := range line {
 			if strings.ContainsRune(openingRunes, r) {
-				s.Push(openToCloseRune[r])
+				closingRunes.Push(openToCloseRune[r])
 				continue
 			}
-			p, _ := s.Pop()
-			if p != r {
+			expectedClosing, err := closingRunes.Pop()
+			if expectedClosing != r || err != nil {
 				if partOne {
 					result += incorrectRunetoScore[r]
 				}
@@ -88,13 +89,9 @@ func findResult(inputData []string, partOne bool) (result int) {
 		}
 
 		totalScore := 0
-		for {
-			p, ok := s.Pop()
-			if !ok {
-				break
-			}
-			totalScore *= 5
-			totalScore += incompleteRuneToScore[p]
+		for !closingRunes.IsEmpty() {
+			closingRune, _ := closingRunes.Pop()
+			totalScore = 5*totalScore + incompleteRuneToScore[closingRune]
 		}
 		scores = append(scores, totalScore)
 	}
@@ -113,15 +110,23 @@ func (s *stack) Push(v rune) {
 	*s = append(*s, v)
 }
 
-func (s *stack) Pop() (result rune, returned bool) {
+func (s *stack) Pop() (result rune, err error) {
 
-	if len(*s) < 1 {
-		return result, false
+	if s.IsEmpty() {
+		return result, errors.New("Empty stack")
 	}
 
 	res := (*s)[len(*s)-1]
 	*s = (*s)[:len(*s)-1]
-	return res, true
+	return res, nil
+}
+
+func (s *stack) IsEmpty() bool {
+
+	if len(*s) < 1 {
+		return true
+	}
+	return false
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
