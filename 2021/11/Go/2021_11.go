@@ -82,7 +82,7 @@ func findResult(inputData [][]int, numberSteps int, partTwo bool) (result int) {
 	for step := 1; (step <= numberSteps) || waitingForSimultaneousFlash; step++ {
 		// 1. Step mark
 		energizeAndMark := func(i int, j int) (breaks bool, breakReturns bool, returnValue interface{}) {
-			energizeAndMark(paddedData, flashState, i, j)
+			energizeAndMark(i, j, paddedData, flashState)
 			return
 		}
 		iteratePaddedMatrix(paddedData, energizeAndMark)
@@ -168,23 +168,23 @@ outerLoop:
 	return // false, nil
 }
 
-func energizeAndMark(inputData [][]int, flashMatrix [][]int, i int, j int) {
+func energizeAndMark(i int, j int, currentMatrix [][]int, flashMatrix [][]int) {
 	if flashMatrix[i][j] == noFlashMarker {
-		inputData[i][j]++
-		if inputData[i][j] > flashThreshold {
+		currentMatrix[i][j]++
+		if currentMatrix[i][j] > flashThreshold {
 			flashMatrix[i][j] = toFlashMarker
 		}
 	}
 }
 
-func energizeAndMarkNeighbors(i int, j int, inputData [][]int, flashMatrix [][]int) {
+func energizeAndMarkNeighbors(i int, j int, currentMatrix [][]int, flashMatrix [][]int) {
 	// neighbor offsets
 	for k := -1; k <= 1; k++ {
 		for m := -1; m <= 1; m++ {
 			if k == 0 && m == 0 {
 				continue
 			}
-			energizeAndMark(inputData, flashMatrix, i+k, j+m)
+			energizeAndMark(i+k, j+m, currentMatrix, flashMatrix)
 		}
 	}
 }
