@@ -65,25 +65,22 @@ func findPath(g *Graph, current *Vertex, end *Vertex,
 		return
 	}
 
-	canEnterSmallCavesFlag := oneSmallCaveTwiceOption
-	for k, v := range visitedTimes {
-		if g.Vertices[k].isSmall && v > 1 {
-			canEnterSmallCavesFlag = false
-			break
+	if oneSmallCaveTwiceOption {
+		for k, v := range visitedTimes {
+			if g.Vertices[k].isSmall && v > 1 {
+				oneSmallCaveTwiceOption = false
+				break
+			}
 		}
 	}
 
 	for _, v := range current.Vertices {
 		if numberVisits, ok := visitedTimes[v.Key]; ok && v.isSmall && numberVisits > 0 {
-			if !oneSmallCaveTwiceOption {
+			if oneSmallCaveTwiceOption == false {
 				continue
 			}
 
-			if v.Key == "start" {
-				continue
-			}
-
-			if !canEnterSmallCavesFlag {
+			if oneSmallCaveTwiceOption && v.Key == "start" {
 				continue
 			}
 		}
