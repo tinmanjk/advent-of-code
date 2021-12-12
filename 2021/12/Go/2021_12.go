@@ -14,7 +14,7 @@ func main() {
 	mapOfNodes := parseInput(lines)
 
 	// part 1
-	result = findResult(mapOfNodes)
+	result = findResult(&mapOfNodes)
 	fmt.Println(result)
 
 	// part 2
@@ -23,41 +23,40 @@ func main() {
 }
 
 type Vertex struct {
-	node1 Node
-	node2 Node
+	Key      string
+	Vertices map[string]*Vertex // undirected graph
+	isSmall  bool
 }
 
-type Node struct {
-	Name               string
-	ConnectionsHashSet *map[*Node]*Node // undirected graph
-	isSmall            bool
+type Graph struct {
+	Vertices map[string]*Vertex
 }
 
-func parseInput(slicesOfLines []string) (mapOfNodes map[string]*Node) {
+func parseInput(slicesOfLines []string) (graph Graph) {
 	// adjacency list
 	// map of nodes
-	mapOfNodes = map[string]*Node{}
+	graph = Graph{map[string]*Vertex{}}
 
 	for i := 0; i < len(slicesOfLines); i++ {
 		names := strings.Split(slicesOfLines[i], "-")
 		// create empty node if not already
 		for j := 0; j < 2; j++ {
-			if _, ok := mapOfNodes[names[j]]; !ok {
+			if _, ok := graph.Vertices[names[j]]; !ok {
 				isSmall := 'a' <= names[j][0] && names[j][0] <= 'z'
-				connections := &map[*Node]*Node{}
-				node := Node{names[j], connections, isSmall}
-				mapOfNodes[names[j]] = &node
+				vertices := map[string]*Vertex{}
+				vertex := Vertex{names[j], vertices, isSmall}
+				graph.Vertices[names[j]] = &vertex
 			}
 		}
 
 		// connect the two
-		map0Connections := (*mapOfNodes[names[0]]).ConnectionsHashSet
-		node1 := mapOfNodes[names[1]]
-		(*map0Connections)[node1] = node1
+		map0Connections := graph.Vertices[names[0]].Vertices
+		node1 := graph.Vertices[names[1]]
+		map0Connections[names[1]] = node1
 
-		map1Connections := (*mapOfNodes[names[1]]).ConnectionsHashSet
-		node0 := mapOfNodes[names[0]]
-		(*map1Connections)[node0] = node0
+		map1Connections := graph.Vertices[names[1]].Vertices
+		node0 := graph.Vertices[names[0]]
+		map1Connections[names[0]] = node0
 	}
 	return
 }
@@ -68,20 +67,53 @@ const inputPath = "../input0.txt"
 // dont visit small caves more than once in between
 // big caves -> Uppercase -> ANY TIME
 // small caves -> lowerCase -> AT MOST ONCE
+// all possible paths
+func findPath(g *Graph, current *Vertex, end *Vertex,
+	visited map[string]bool, thisPath []string, allPaths *[][]string) {
 
-func findResult(mapOfNodes map[string]*Node) (result int) {
+	// if current.isSmall {
+	// 	visited[current.Key] = true
+	// }
+	// final destination
+	if current.Key == end.Key {
+		thisPath = append(thisPath, end.Key)
+		*allPaths = append(*allPaths, thisPath)
+		return
+	}
 
-	return
+outer:
+	for _, v := range current.Vertices {
+		// dali da se vrashtame
+		for _, vis := range thisPath {
+			if v.isSmall && vis == v.Key {
+				continue outer
+			}
+		}
+
+		thisPath = append(thisPath, current.Key)
+		findPath(g, v, end, visited, thisPath, allPaths)
+	}
 }
 
-// func (n *Node) DepthFirstSearch(array []int) []int {
-// 	array = append(array, n.Value)
-// 	for _, child := range n.Children {
-// 		array = child.DepthFirstSearch(array)
-// 	}
+func findResult(graph *Graph) (result int) {
 
-// 	return array
-// }
+	// traverse distinct paths
+	// start at start - end at end
+	start := graph.Vertices["start"]
+	end := graph.Vertices["end"]
+	visited := map[string]bool{}
+
+	for _, v := range (*graph).Vertices {
+		visited[v.Key] = false
+	}
+	visited["start"] = true
+	pathSoFar := []string{}
+	allPaths := [][]string{}
+	findPath(graph, start, end, visited, pathSoFar, &allPaths)
+
+	// traverse -> i da namerq "end"
+	return len(allPaths)
+}
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	file, err := os.Open(filePath)
