@@ -11,20 +11,20 @@ import (
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
 	var result int
-	mapOfNodes := parseInput(lines)
+	graph := parseInput(lines)
 
 	// part 1
-	result = findResult(&mapOfNodes)
+	result = findResult(&graph, false)
 	fmt.Println(result)
 
 	// part 2
-	// result = findResult(parsedInput)
-	// fmt.Println(result)
+	result = findResult(&graph, true)
+	fmt.Println(result)
 }
 
 type Vertex struct {
 	Key      string
-	Vertices map[string]*Vertex // undirected graph
+	Vertices map[string]*Vertex
 	isSmall  bool
 }
 
@@ -33,8 +33,6 @@ type Graph struct {
 }
 
 func parseInput(slicesOfLines []string) (graph Graph) {
-	// adjacency list
-	// map of nodes
 	graph = Graph{map[string]*Vertex{}}
 
 	for i := 0; i < len(slicesOfLines); i++ {
@@ -50,104 +48,59 @@ func parseInput(slicesOfLines []string) (graph Graph) {
 		}
 
 		// connect the two
-		map0Connections := graph.Vertices[names[0]].Vertices
-		node1 := graph.Vertices[names[1]]
-		map0Connections[names[1]] = node1
-
-		map1Connections := graph.Vertices[names[1]].Vertices
-		node0 := graph.Vertices[names[0]]
-		map1Connections[names[0]] = node0
+		graph.Vertices[names[0]].Vertices[names[1]] = graph.Vertices[names[1]]
+		graph.Vertices[names[1]].Vertices[names[0]] = graph.Vertices[names[0]]
 	}
 	return
 }
 
 const inputPath = "../input.txt"
 
-// distinct paths
-// dont visit small caves more than once in between
-// big caves -> Uppercase -> ANY TIME
-// small caves -> lowerCase -> AT MOST ONCE
-// all possible paths
 func findPath(g *Graph, current *Vertex, end *Vertex,
-	visited map[string]bool, thisPath []string, allPaths *[][]string) {
+	visitedTimes map[string]int, counter *int, oneSmallCaveTwiceOption bool) {
 
-	// if current.isSmall {
-	// 	visited[current.Key] = true
-	// }
-	// final destination
-	thisPath = append(thisPath, current.Key)
-
+	visitedTimes[current.Key]++
 	if current.Key == end.Key {
-		*allPaths = append(*allPaths, thisPath)
+		(*counter)++
 		return
 	}
 
-outer:
+	canEnterSmallCavesFlag := oneSmallCaveTwiceOption
+	for k, v := range visitedTimes {
+		if g.Vertices[k].isSmall && v > 1 {
+			canEnterSmallCavesFlag = false
+			break
+		}
+	}
+
 	for _, v := range current.Vertices {
-		alreadyVisitedSmallTwice := false
-		// duplicate mi trqbva
-		for _, valueInThisPath := range thisPath {
-			isSmall := 'a' <= valueInThisPath[0] && valueInThisPath[0] <= 'z'
-			if !isSmall {
+		if numberVisits, ok := visitedTimes[v.Key]; ok && v.isSmall && numberVisits > 0 {
+			if !oneSmallCaveTwiceOption {
 				continue
 			}
-			// we have small guaranteed
-			counter := 0
-			for _, valueInThisPathToCheck := range thisPath {
-				if valueInThisPath == valueInThisPathToCheck {
-					counter++
-				}
+
+			if v.Key == "start" {
+				continue
 			}
-			if counter > 1 {
-				alreadyVisitedSmallTwice = true
-				break
+
+			if !canEnterSmallCavesFlag {
+				continue
 			}
 		}
-
-		if v.Key == "start" {
-			continue
-		}
-		for _, vis := range thisPath {
-			// alreadyVisitedSmallTwice
-			// old...just once
-			if thisPath[len(thisPath)-1] == v.Key {
-				continue outer
-			}
-
-			if alreadyVisitedSmallTwice {
-				if v.isSmall && v.Key == vis {
-					continue outer
-				}
-			}
-
-		}
-
-		findPath(g, v, end, visited, thisPath, allPaths)
+		findPath(g, v, end, visitedTimes, counter, oneSmallCaveTwiceOption)
+		visitedTimes[v.Key]--
 	}
 }
 
-func findResult(graph *Graph) (result int) {
+func findResult(graph *Graph, oneSmallCaveTwiceOption bool) (result int) {
 
-	// traverse distinct paths
-	// start at start - end at end
 	start := graph.Vertices["start"]
 	end := graph.Vertices["end"]
-	visited := map[string]bool{}
+	visited := map[string]int{}
 
-	for _, v := range (*graph).Vertices {
-		visited[v.Key] = false
-	}
-	visited["start"] = true
-	pathSoFar := []string{}
-	allPaths := [][]string{}
-	findPath(graph, start, end, visited, pathSoFar, &allPaths)
+	findPath(graph, start, end, visited, &result, oneSmallCaveTwiceOption)
 
-	// traverse -> i da namerq "end"
-	for _, v := range allPaths {
-		fmt.Println(v)
-
-	}
-	return len(allPaths)
+	return
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
