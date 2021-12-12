@@ -56,13 +56,12 @@ func parseInput(slicesOfLines []string) (graph Graph) {
 
 const inputPath = "../input.txt"
 
-func findPath(g *Graph, current *Vertex, end *Vertex,
-	visitedTimes map[string]int, counter *int, oneSmallCaveTwiceOption bool) {
+func countPaths(g *Graph, current *Vertex, end *Vertex,
+	visitedTimes map[string]int, oneSmallCaveTwiceOption bool) (count int) {
 
 	visitedTimes[current.Key]++
 	if current.Key == end.Key {
-		(*counter)++
-		return
+		return 1
 	}
 
 	if oneSmallCaveTwiceOption {
@@ -84,9 +83,11 @@ func findPath(g *Graph, current *Vertex, end *Vertex,
 				continue
 			}
 		}
-		findPath(g, v, end, visitedTimes, counter, oneSmallCaveTwiceOption)
+		count += countPaths(g, v, end, visitedTimes, oneSmallCaveTwiceOption)
 		visitedTimes[v.Key]--
 	}
+
+	return count
 }
 
 func findResult(graph *Graph, oneSmallCaveTwiceOption bool) (result int) {
@@ -95,7 +96,7 @@ func findResult(graph *Graph, oneSmallCaveTwiceOption bool) (result int) {
 	end := graph.Vertices["end"]
 	visited := map[string]int{}
 
-	findPath(graph, start, end, visited, &result, oneSmallCaveTwiceOption)
+	result = countPaths(graph, start, end, visited, oneSmallCaveTwiceOption)
 
 	return
 }
