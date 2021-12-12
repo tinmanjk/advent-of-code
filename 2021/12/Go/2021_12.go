@@ -61,7 +61,7 @@ func parseInput(slicesOfLines []string) (graph Graph) {
 	return
 }
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 // distinct paths
 // dont visit small caves more than once in between
@@ -75,22 +75,53 @@ func findPath(g *Graph, current *Vertex, end *Vertex,
 	// 	visited[current.Key] = true
 	// }
 	// final destination
+	thisPath = append(thisPath, current.Key)
+
 	if current.Key == end.Key {
-		thisPath = append(thisPath, end.Key)
 		*allPaths = append(*allPaths, thisPath)
 		return
 	}
 
 outer:
 	for _, v := range current.Vertices {
-		// dali da se vrashtame
-		for _, vis := range thisPath {
-			if v.isSmall && vis == v.Key {
-				continue outer
+		alreadyVisitedSmallTwice := false
+		// duplicate mi trqbva
+		for _, valueInThisPath := range thisPath {
+			isSmall := 'a' <= valueInThisPath[0] && valueInThisPath[0] <= 'z'
+			if !isSmall {
+				continue
+			}
+			// we have small guaranteed
+			counter := 0
+			for _, valueInThisPathToCheck := range thisPath {
+				if valueInThisPath == valueInThisPathToCheck {
+					counter++
+				}
+			}
+			if counter > 1 {
+				alreadyVisitedSmallTwice = true
+				break
 			}
 		}
 
-		thisPath = append(thisPath, current.Key)
+		if v.Key == "start" {
+			continue
+		}
+		for _, vis := range thisPath {
+			// alreadyVisitedSmallTwice
+			// old...just once
+			if thisPath[len(thisPath)-1] == v.Key {
+				continue outer
+			}
+
+			if alreadyVisitedSmallTwice {
+				if v.isSmall && v.Key == vis {
+					continue outer
+				}
+			}
+
+		}
+
 		findPath(g, v, end, visited, thisPath, allPaths)
 	}
 }
@@ -112,6 +143,10 @@ func findResult(graph *Graph) (result int) {
 	findPath(graph, start, end, visited, pathSoFar, &allPaths)
 
 	// traverse -> i da namerq "end"
+	for _, v := range allPaths {
+		fmt.Println(v)
+
+	}
 	return len(allPaths)
 }
 
