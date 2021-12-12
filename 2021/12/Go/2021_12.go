@@ -11,10 +11,10 @@ import (
 func main() {
 	lines := returnSliceOfLinesFromFile(inputPath)
 	var result int
-	parsedInput := parseInput(lines)
+	mapOfNodes := parseInput(lines)
 
 	// part 1
-	result = findResult(parsedInput)
+	result = findResult(mapOfNodes)
 	fmt.Println(result)
 
 	// part 2
@@ -22,26 +22,66 @@ func main() {
 	// fmt.Println(result)
 }
 
-func parseInput(slicesOfLines []string) (solutionsData [][]int) {
-	lengthTotalLines := len(slicesOfLines)
-	lenghSingleLine := len(slicesOfLines[0]) // should be the same for all
-	solutionsData = make([][]int, lengthTotalLines)
-	for i := 0; i < lengthTotalLines; i++ {
-		solutionsData[i] = make([]int, lenghSingleLine)
-		for j := 0; j < lenghSingleLine; j++ {
-			solutionsData[i][j] = int(slicesOfLines[i][j] - '0')
-		}
-	}
+type Vertex struct {
+	node1 Node
+	node2 Node
+}
 
+type Node struct {
+	Name               string
+	ConnectionsHashSet *map[*Node]*Node // undirected graph
+	isSmall            bool
+}
+
+func parseInput(slicesOfLines []string) (mapOfNodes map[string]*Node) {
+	// adjacency list
+	// map of nodes
+	mapOfNodes = map[string]*Node{}
+
+	for i := 0; i < len(slicesOfLines); i++ {
+		names := strings.Split(slicesOfLines[i], "-")
+		// create empty node if not already
+		for j := 0; j < 2; j++ {
+			if _, ok := mapOfNodes[names[j]]; !ok {
+				isSmall := 'a' <= names[j][0] && names[j][0] <= 'z'
+				connections := &map[*Node]*Node{}
+				node := Node{names[j], connections, isSmall}
+				mapOfNodes[names[j]] = &node
+			}
+		}
+
+		// connect the two
+		map0Connections := (*mapOfNodes[names[0]]).ConnectionsHashSet
+		node1 := mapOfNodes[names[1]]
+		(*map0Connections)[node1] = node1
+
+		map1Connections := (*mapOfNodes[names[1]]).ConnectionsHashSet
+		node0 := mapOfNodes[names[0]]
+		(*map1Connections)[node0] = node0
+	}
 	return
 }
 
 const inputPath = "../input0.txt"
 
-func findResult(inputData [][]int) (result int) {
+// distinct paths
+// dont visit small caves more than once in between
+// big caves -> Uppercase -> ANY TIME
+// small caves -> lowerCase -> AT MOST ONCE
+
+func findResult(mapOfNodes map[string]*Node) (result int) {
 
 	return
 }
+
+// func (n *Node) DepthFirstSearch(array []int) []int {
+// 	array = append(array, n.Value)
+// 	for _, child := range n.Children {
+// 		array = child.DepthFirstSearch(array)
+// 	}
+
+// 	return array
+// }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
 	file, err := os.Open(filePath)
