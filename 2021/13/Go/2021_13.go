@@ -81,12 +81,7 @@ func findResult(mapOfPoints map[point]point,
 	instructions []inst, justFirstInstr bool) (result int) {
 
 	for i := 0; i < len(instructions); i++ {
-		if instructions[i].axis == "y" {
-			mapOfPoints = foldUp(mapOfPoints, instructions[i].units)
-
-		} else {
-			mapOfPoints = foldLeft(mapOfPoints, instructions[i].units)
-		}
+		mapOfPoints = foldDirection(mapOfPoints, instructions[i].axis, instructions[i].units)
 
 		if justFirstInstr {
 			break
@@ -97,8 +92,6 @@ func findResult(mapOfPoints map[point]point,
 }
 
 func printReadyPoints(mapOfPoints map[point]point) {
-	// find maxX
-	// find maxY
 
 	maxX := math.MinInt32
 	maxY := math.MinInt32
@@ -108,7 +101,7 @@ func printReadyPoints(mapOfPoints map[point]point) {
 			maxX = p.x
 		}
 		if p.y >= maxY {
-			maxY = p.x
+			maxY = p.y
 		}
 	}
 
@@ -125,76 +118,36 @@ func printReadyPoints(mapOfPoints map[point]point) {
 				printMatrix[i][j] = '.'
 			}
 		}
+		fmt.Println(string(printMatrix[i]))
 	}
-	lines := make([]string, maxY+1)
-	for i := 0; i < len(printMatrix); i++ {
-		lines[i] = string(printMatrix[i])
-	}
-
-	for i := 0; i < len(lines); i++ {
-		fmt.Println(lines[i])
-
-	}
-	fmt.Println("pesho")
-	// for _, v := range mapOfPoints {
-	// 	if condition {
-
-	// 	}
-	// }
-	//
 }
 
-// fold left
-// delete.vame
-func foldUp(mapOfPoints map[point]point, units int) (foldedMap map[point]point) {
-	// if
-	// mahame vsichkite na tazi liniq
-
-	// 1.
-	// 0,0 i 0,1
-	// 0, 13 -> 0,1
-	// 0, 14 -> 0,0
-	// from y == units, to max
-	// units are 0 based ... so 7 = 8 line
-	// 2*7 new Y = 2*7-y = 14 - 14 = 0
-	// samo y se smenq
+func foldDirection(mapOfPoints map[point]point, axis string, units int) (foldedMap map[point]point) {
 	foldedMap = map[point]point{}
 	for _, oldPoint := range mapOfPoints {
-		if oldPoint.y == units {
-			continue // not to be added to new one
-			// effectively bye bye
-		}
-		if oldPoint.y < units {
-			// advame bez conversion
+		switch axis {
+		case "y":
+			if oldPoint.y == units {
+				continue // not to be added to new one
+			}
+			if oldPoint.y < units {
+				foldedMap[oldPoint] = oldPoint
+				continue
+			}
+			oldPoint.y = 2*units - oldPoint.y
 			foldedMap[oldPoint] = oldPoint
-			continue
-		}
+		case "x":
+			if oldPoint.x == units {
+				continue // not to be added to new one
+			}
+			if oldPoint.x < units {
+				foldedMap[oldPoint] = oldPoint
+				continue
+			}
 
-		// oldpoint y > units
-		oldPoint.y = 2*units - oldPoint.y
-		foldedMap[oldPoint] = oldPoint
-	}
-
-	return
-}
-
-func foldLeft(mapOfPoints map[point]point, units int) (foldedMap map[point]point) {
-	foldedMap = map[point]point{}
-	for _, oldPoint := range mapOfPoints {
-		if oldPoint.x == units {
-			continue // not to be added to new one
-			// effectively bye bye
-		}
-		if oldPoint.x < units {
-			// advame bez conversion
+			oldPoint.x = 2*units - oldPoint.x
 			foldedMap[oldPoint] = oldPoint
-			continue
 		}
-
-		// right is affected only
-		// oldpoint x > units
-		oldPoint.x = 2*units - oldPoint.x
-		foldedMap[oldPoint] = oldPoint
 	}
 	return
 }
