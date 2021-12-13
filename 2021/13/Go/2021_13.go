@@ -74,11 +74,78 @@ func parseInput(slicesOfLines []string) (mapOfPoints map[point]point,
 	return
 }
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 func findResult(mapOfPoints map[point]point,
 	instructions []inst, justFirstInstr bool) (result int) {
 
+	for i := 0; i < len(instructions); i++ {
+		if instructions[i].axis == "y" {
+			mapOfPoints = foldUp(mapOfPoints, instructions[i].units)
+
+		} else {
+			mapOfPoints = foldLeft(mapOfPoints, instructions[i].units)
+		}
+
+		if justFirstInstr {
+			break
+		}
+	}
+	return len(mapOfPoints)
+}
+
+// fold left
+// delete.vame
+func foldUp(mapOfPoints map[point]point, units int) (foldedMap map[point]point) {
+	// if
+	// mahame vsichkite na tazi liniq
+
+	// 1.
+	// 0,0 i 0,1
+	// 0, 13 -> 0,1
+	// 0, 14 -> 0,0
+	// from y == units, to max
+	// units are 0 based ... so 7 = 8 line
+	// 2*7 new Y = 2*7-y = 14 - 14 = 0
+	// samo y se smenq
+	foldedMap = map[point]point{}
+	for _, oldPoint := range mapOfPoints {
+		if oldPoint.y == units {
+			continue // not to be added to new one
+			// effectively bye bye
+		}
+		if oldPoint.y < units {
+			// advame bez conversion
+			foldedMap[oldPoint] = oldPoint
+			continue
+		}
+
+		// oldpoint y > units
+		oldPoint.y = 2*units - oldPoint.y
+		foldedMap[oldPoint] = oldPoint
+	}
+
+	return
+}
+
+func foldLeft(mapOfPoints map[point]point, units int) (foldedMap map[point]point) {
+	foldedMap = map[point]point{}
+	for _, oldPoint := range mapOfPoints {
+		if oldPoint.x == units {
+			continue // not to be added to new one
+			// effectively bye bye
+		}
+		if oldPoint.x < units {
+			// advame bez conversion
+			foldedMap[oldPoint] = oldPoint
+			continue
+		}
+
+		// right is affected only
+		// oldpoint x > units
+		oldPoint.x = 2*units - oldPoint.x
+		foldedMap[oldPoint] = oldPoint
+	}
 	return
 }
 
