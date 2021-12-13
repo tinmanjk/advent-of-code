@@ -99,7 +99,7 @@ func printPoints(mapOfPoints map[point]point) {
 			if _, ok := mapOfPoints[pointAtCoordinate]; ok {
 				printMatrix[i][j] = '#'
 			} else {
-				printMatrix[i][j] = '.'
+				printMatrix[i][j] = ' '
 			}
 		}
 		fmt.Println(string(printMatrix[i]))
