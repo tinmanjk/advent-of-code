@@ -110,23 +110,23 @@ func fold(mapOfPoints map[point]point, axis string, units int) (foldedMap map[po
 	foldedMap = map[point]point{}
 	for _, oldPoint := range mapOfPoints {
 		switch axis {
-		case "y":
+		case "y": // down to up
 			if oldPoint.y == units {
-				continue // not to be added to new one
+				break // not to be added to new one
 			}
 			if oldPoint.y < units {
 				foldedMap[oldPoint] = oldPoint
-				continue
+				break
 			}
 			oldPoint.y = 2*units - oldPoint.y
 			foldedMap[oldPoint] = oldPoint
-		case "x":
+		case "x": // right to left
 			if oldPoint.x == units {
-				continue // not to be added to new one
+				break // not to be added to new one
 			}
 			if oldPoint.x < units {
 				foldedMap[oldPoint] = oldPoint
-				continue
+				break
 			}
 
 			oldPoint.x = 2*units - oldPoint.x
