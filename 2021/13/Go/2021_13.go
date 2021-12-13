@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +16,7 @@ func main() {
 	mapOfPoints, instructions := parseInput(lines)
 
 	// part 1
-	result = findResult(mapOfPoints, instructions, true)
+	result = findResult(mapOfPoints, instructions, false)
 	fmt.Println(result)
 
 	// // part 2
@@ -91,7 +92,56 @@ func findResult(mapOfPoints map[point]point,
 			break
 		}
 	}
+	printReadyPoints(mapOfPoints)
 	return len(mapOfPoints)
+}
+
+func printReadyPoints(mapOfPoints map[point]point) {
+	// find maxX
+	// find maxY
+
+	maxX := math.MinInt32
+	maxY := math.MinInt32
+
+	for _, p := range mapOfPoints {
+		if p.x >= maxX {
+			maxX = p.x
+		}
+		if p.y >= maxY {
+			maxY = p.x
+		}
+	}
+
+	// y-x mi trqbva matrix
+	//if point '#' otherwise '.'
+	printMatrix := make([][]rune, maxY+1)
+	for i := 0; i < len(printMatrix); i++ {
+		printMatrix[i] = make([]rune, maxX+1)
+		for j := 0; j < len(printMatrix[i]); j++ {
+			pointAtCoordinate := point{j, i}
+			if _, ok := mapOfPoints[pointAtCoordinate]; ok {
+				printMatrix[i][j] = '#'
+			} else {
+				printMatrix[i][j] = '.'
+			}
+		}
+	}
+	lines := make([]string, maxY+1)
+	for i := 0; i < len(printMatrix); i++ {
+		lines[i] = string(printMatrix[i])
+	}
+
+	for i := 0; i < len(lines); i++ {
+		fmt.Println(lines[i])
+
+	}
+	fmt.Println("pesho")
+	// for _, v := range mapOfPoints {
+	// 	if condition {
+
+	// 	}
+	// }
+	//
 }
 
 // fold left
