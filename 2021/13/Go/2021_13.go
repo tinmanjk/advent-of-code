@@ -16,12 +16,11 @@ func main() {
 	mapOfPoints, instructions := parseInput(lines)
 
 	// part 1
-	result = findResult(mapOfPoints, instructions, false)
+	result = findResult(mapOfPoints, instructions, true)
 	fmt.Println(result)
 
-	// // part 2
-	// result = findResult(&graph, true)
-	// fmt.Println(result)
+	// part 2
+	result = findResult(mapOfPoints, instructions, false)
 }
 
 type point struct {
@@ -34,38 +33,26 @@ type inst struct {
 	units int
 }
 
-// list of points
-
 func parseInput(slicesOfLines []string) (mapOfPoints map[point]point,
 	instructions []inst) {
 
 	// points
 	mapOfPoints = map[point]point{}
-
 	i := 0
-	for ; i < len(slicesOfLines); i++ {
+	for ; i < len(slicesOfLines) && slicesOfLines[i] != ""; i++ {
 		line := slicesOfLines[i]
-		if line == "" {
-			i++
-			break
-		}
 		splitted := strings.Split(line, ",")
 		x, _ := strconv.Atoi(splitted[0])
 		y, _ := strconv.Atoi(splitted[1])
 		p := point{x, y}
 		mapOfPoints[p] = p
 	}
-	// we have i
 
 	//instructions
-	for j := i; j < len(slicesOfLines); j++ {
+	for j := i + 1; j < len(slicesOfLines) && slicesOfLines[j] != ""; j++ {
 		line := slicesOfLines[j]
-		if line == "" {
-			break
-		}
 		splitted := strings.Split(line, " ")
 		instruction := strings.Split(splitted[2], "=")
-
 		axis := instruction[0]
 		units, _ := strconv.Atoi(instruction[1])
 		instr := inst{axis, units}
@@ -78,24 +65,23 @@ func parseInput(slicesOfLines []string) (mapOfPoints map[point]point,
 const inputPath = "../input.txt"
 
 func findResult(mapOfPoints map[point]point,
-	instructions []inst, justFirstInstr bool) (result int) {
+	instructions []inst, part1 bool) (result int) {
 
 	for i := 0; i < len(instructions); i++ {
-		mapOfPoints = foldDirection(mapOfPoints, instructions[i].axis, instructions[i].units)
+		mapOfPoints = fold(mapOfPoints, instructions[i].axis, instructions[i].units)
 
-		if justFirstInstr {
-			break
+		if part1 {
+			return len(mapOfPoints)
 		}
 	}
-	printReadyPoints(mapOfPoints)
+	printPoints(mapOfPoints)
 	return len(mapOfPoints)
 }
 
-func printReadyPoints(mapOfPoints map[point]point) {
+func printPoints(mapOfPoints map[point]point) {
 
 	maxX := math.MinInt32
 	maxY := math.MinInt32
-
 	for _, p := range mapOfPoints {
 		if p.x >= maxX {
 			maxX = p.x
@@ -105,8 +91,6 @@ func printReadyPoints(mapOfPoints map[point]point) {
 		}
 	}
 
-	// y-x mi trqbva matrix
-	//if point '#' otherwise '.'
 	printMatrix := make([][]rune, maxY+1)
 	for i := 0; i < len(printMatrix); i++ {
 		printMatrix[i] = make([]rune, maxX+1)
@@ -122,7 +106,7 @@ func printReadyPoints(mapOfPoints map[point]point) {
 	}
 }
 
-func foldDirection(mapOfPoints map[point]point, axis string, units int) (foldedMap map[point]point) {
+func fold(mapOfPoints map[point]point, axis string, units int) (foldedMap map[point]point) {
 	foldedMap = map[point]point{}
 	for _, oldPoint := range mapOfPoints {
 		switch axis {
