@@ -24,27 +24,27 @@ func main() {
 }
 
 type pair struct {
-	first  string
-	second string
+	first  rune
+	second rune
 }
 
 // polymer template first line
 // pairs
 // pair insertion rules
-func parseInput(slicesOfLines []string) (mapInsertionRules map[pair]string, initialTemplate []rune) {
+func parseInput(slicesOfLines []string) (mapInsertionRules map[pair]rune, initialTemplate []rune) {
 
 	// points
 	initialTemplate = []rune(slicesOfLines[0])
-	mapInsertionRules = map[pair]string{}
+	mapInsertionRules = map[pair]rune{}
 	i := 2
 	// memory
 	for ; i < len(slicesOfLines); i++ {
 		line := slicesOfLines[i]
 		splitted := strings.Split(line, " -> ")
 		firstSecond := splitted[0]
-		between := string(splitted[1][0])
-		first := string(firstSecond[0])
-		second := string(firstSecond[1])
+		between := rune(splitted[1][0])
+		first := rune(firstSecond[0])
+		second := rune(firstSecond[1])
 
 		pairChen := pair{first, second}
 		mapInsertionRules[pairChen] = between
@@ -54,9 +54,10 @@ func parseInput(slicesOfLines []string) (mapInsertionRules map[pair]string, init
 
 const inputPath = "../input.txt"
 
-func findResult(mapInsertionRules map[pair]string,
+func findResult(mapInsertionRules map[pair]rune,
 	initialTemplate []rune, steps int) (result int) {
 
+	// Initial state
 	elementCounts := map[rune]int{}
 	for i := 0; i < len(initialTemplate); i++ {
 		elementCounts[initialTemplate[i]]++
@@ -64,12 +65,13 @@ func findResult(mapInsertionRules map[pair]string,
 
 	pairCounts := map[pair]int{}
 	for i := 0; i < len(initialTemplate)-1; i++ {
-		first := string(initialTemplate[i])
-		second := string(initialTemplate[i+1])
+		first := initialTemplate[i]
+		second := initialTemplate[i+1]
 		newPair := pair{first, second}
 		pairCounts[newPair]++
 	}
 
+	// Step iteration
 	for i := 0; i < steps; i++ {
 		pairCountsNew := map[pair]int{}
 		for k, count := range pairCounts {
@@ -78,7 +80,7 @@ func findResult(mapInsertionRules map[pair]string,
 			secondNewWPair := pair{elementToBeInserted, k.second}
 			pairCountsNew[firstNewPair] += count
 			pairCountsNew[secondNewWPair] += count
-			elementCounts[rune(elementToBeInserted[0])] += count
+			elementCounts[elementToBeInserted] += count
 		}
 		pairCounts = pairCountsNew
 	}
