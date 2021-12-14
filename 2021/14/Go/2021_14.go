@@ -74,10 +74,10 @@ func findResult(mapInsertionRules map[pair]rune,
 	// Step iteration
 	for i := 0; i < steps; i++ {
 		pairCountsNew := map[pair]int{}
-		for k, count := range pairCounts {
-			elementToBeInserted := mapInsertionRules[k]
-			firstNewPair := pair{k.first, elementToBeInserted}
-			secondNewWPair := pair{elementToBeInserted, k.second}
+		for p, count := range pairCounts {
+			elementToBeInserted := mapInsertionRules[p]
+			firstNewPair := pair{p.first, elementToBeInserted}
+			secondNewWPair := pair{elementToBeInserted, p.second}
 			pairCountsNew[firstNewPair] += count
 			pairCountsNew[secondNewWPair] += count
 			elementCounts[elementToBeInserted] += count
