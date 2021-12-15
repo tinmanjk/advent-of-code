@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"aoc/libs/go/ds"
 	"fmt"
 	"io"
 	"log"
@@ -68,7 +68,7 @@ func findResult(inputData []string, partOne bool) (result int) {
 	scores := []int{}
 	for _, line := range inputData {
 		lineCorrupt := false
-		closingRunes := stack{}
+		closingRunes := ds.Stack{}
 		for _, r := range line {
 			if strings.ContainsRune(openingRunes, r) {
 				closingRunes.Push(openToCloseRune[r])
@@ -102,31 +102,6 @@ func findResult(inputData []string, partOne bool) (result int) {
 	sort.Ints(scores)
 	// odd number of scores always
 	return scores[len(scores)/2]
-}
-
-type stack []rune
-
-func (s *stack) Push(v rune) {
-	*s = append(*s, v)
-}
-
-func (s *stack) Pop() (result rune, err error) {
-
-	if s.IsEmpty() {
-		return result, errors.New("Empty stack")
-	}
-
-	res := (*s)[len(*s)-1]
-	*s = (*s)[:len(*s)-1]
-	return res, nil
-}
-
-func (s *stack) IsEmpty() bool {
-
-	if len(*s) < 1 {
-		return true
-	}
-	return false
 }
 
 func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
