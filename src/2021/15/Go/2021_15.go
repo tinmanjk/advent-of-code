@@ -125,28 +125,28 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 
 	paddedMatrix := addPaddings(matrixOfInts, 99)
 
-	// InputData
-	var inputDataSlice = []AdjacencyList{}
+	// Create EdgeList Representation ofthe Graph
+	var edgeList = []FullEdge{}
 	for i := 1; i < len(paddedMatrix)-1; i++ {
 		for j := 1; j < len(paddedMatrix[i])-1; j++ {
 			source := point{i, j}
-			// destination nadqsno i nadolu samo
-			// nadqsno
+			// to the right
 			if paddedMatrix[i][j+1] != 99 {
-				inputData := AdjacencyList{}
-				destination := point{}
+				fullEdge := FullEdge{}
 
+				destination := point{}
 				destination.i = i
 				destination.j = j + 1
 
-				inputData.Source = source
-				inputData.Destination = destination
-				inputData.Weight = paddedMatrix[i][j+1]
-				inputDataSlice = append(inputDataSlice, inputData)
+				fullEdge.Source = source
+				fullEdge.Destination = destination
+				fullEdge.Weight = paddedMatrix[i][j+1]
+				edgeList = append(edgeList, fullEdge)
 			}
 
+			// to the bottom
 			if paddedMatrix[i+1][j] != 99 {
-				inputData := AdjacencyList{}
+				inputData := FullEdge{}
 				destination := point{}
 
 				destination.i = i + 1
@@ -155,18 +155,15 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 				inputData.Source = source
 				inputData.Destination = destination
 				inputData.Weight = paddedMatrix[i+1][j]
-				inputDataSlice = append(inputDataSlice, inputData)
+				edgeList = append(edgeList, inputData)
 			}
 		}
 	}
 
 	fromPoint := point{1, 1}
 	toPoint := point{len(paddedMatrix) - 2, len(paddedMatrix) - 2}
-	inputGraph := InputGraph{
-		inputDataSlice, fromPoint, toPoint,
-	}
 
-	startNode, endNode, itemGraph := CreateGraph(inputGraph)
+	startNode, endNode, itemGraph := CreateGraph(edgeList, fromPoint, toPoint)
 
 	finalArr, result = getShortestPath(startNode, endNode, itemGraph)
 	return
@@ -177,54 +174,72 @@ func (g *ItemGraph) AddNode(n *Vertex) {
 	g.Vertexes = append(g.Vertexes, n)
 }
 
-// AddEdge adds an edge to the graph
+// AddEdge adds a partial edge to the graph
+// works as expected
 func (g *ItemGraph) AddEdge(n1, n2 *Vertex, weight int) {
 	if g.Edges == nil {
-		g.Edges = make(map[Vertex][]*Edge)
+		g.Edges = make(map[*Vertex][]*PartialEdge)
 	}
-	ed1 := Edge{
+	ed1 := PartialEdge{
 		ToVertex: n2,
 		Weight:   weight,
 	}
 
-	ed2 := Edge{
+	g.Edges[n1] = append(g.Edges[n1], &ed1)
+
+	// bi-directional
+	ed2 := PartialEdge{
 		ToVertex: n1,
 		Weight:   weight,
 	}
-	g.Edges[*n1] = append(g.Edges[*n1], &ed1)
-	g.Edges[*n2] = append(g.Edges[*n2], &ed2)
+	g.Edges[n2] = append(g.Edges[n2], &ed2)
 }
 
-type AdjacencyList struct {
+type FullEdge struct {
 	Source      point
 	Destination point
 	Weight      int
 }
 
-type InputGraph struct {
-	Graph []AdjacencyList
-	From  point
-	To    point
+// node.a ima Edges
+type PartialEdge struct {
+	ToVertex *Vertex
+	Weight   int
 }
 
-func CreateGraph(data InputGraph) (startVertex *Vertex, endVertex *Vertex, itemGraph *ItemGraph) {
+type point struct {
+	i int
+	j int
+}
+
+type Vertex struct {
+	Value point
+}
+
+type ItemGraph struct {
+	Vertexes []*Vertex                  // can have partialEdges
+	Edges    map[*Vertex][]*PartialEdge // needs full edges
+}
+
+// adjancy list
+func CreateGraph(edgeListGraph []FullEdge, fromPoint point, toPoint point) (startVertex *Vertex, endVertex *Vertex, itemGraph *ItemGraph) {
 	var g ItemGraph
 	vertics := make(map[point]*Vertex)
-	for _, v := range data.Graph {
+	for _, v := range edgeListGraph {
 		if _, found := vertics[v.Source]; !found {
-			nA := Vertex{v.Source, nil}
+			nA := Vertex{v.Source}
 			vertics[v.Source] = &nA
-			if nA.Value == data.From {
+			if nA.Value == fromPoint {
 				startVertex = &nA
 			}
 
 			g.AddNode(&nA)
 		}
 		if _, found := vertics[v.Destination]; !found {
-			nA := Vertex{v.Destination, nil}
+			nA := Vertex{v.Destination}
 			vertics[v.Destination] = &nA
 
-			if nA.Value == data.To {
+			if nA.Value == toPoint {
 				endVertex = &nA
 			}
 			g.AddNode(&nA)
@@ -239,7 +254,7 @@ func getShortestPath(startVertex *Vertex, endVertex *Vertex, g *ItemGraph) ([]po
 	dist := make(map[point]int)     // from Start TO
 	prev := make(map[point]point)   //???
 
-	q := VertexDistanceQueue{}
+	q := PriorityQueue{}
 	pq := q.NewQ() // priority Queue
 	start := VertexDistance{
 		Vertex:   startVertex,
@@ -251,34 +266,28 @@ func getShortestPath(startVertex *Vertex, endVertex *Vertex, g *ItemGraph) ([]po
 	dist[startVertex.Value] = start.Distance
 	pq.Enqueue(start)
 	for !pq.IsEmpty() {
-		v := pq.Dequeue()
-		if visited[v.Vertex.Value] {
+		current := pq.Dequeue()
+		if visited[current.Vertex.Value] {
 			continue
 		}
-		visited[v.Vertex.Value] = true
-		near := g.Edges[*v.Vertex]
+		edges := g.Edges[current.Vertex]
+		visited[current.Vertex.Value] = true
 
-		for _, val := range near {
-			if val.ToVertex.Value.i < v.Vertex.Value.i {
-				continue
-			}
-
-			if val.ToVertex.Value.j < v.Vertex.Value.j {
-				continue
-			}
-
-			if !visited[val.ToVertex.Value] {
-				if dist[v.Vertex.Value]+val.Weight < dist[val.ToVertex.Value] {
+		for _, edge := range edges {
+			if !visited[edge.ToVertex.Value] {
+				if dist[current.Vertex.Value]+edge.Weight < dist[edge.ToVertex.Value] {
 					store := VertexDistance{
-						Vertex:   val.ToVertex,
-						Distance: dist[v.Vertex.Value] + val.Weight,
+						Vertex:   edge.ToVertex,
+						Distance: dist[current.Vertex.Value] + edge.Weight,
 					}
-					dist[val.ToVertex.Value] = dist[v.Vertex.Value] + val.Weight
-					prev[val.ToVertex.Value] = v.Vertex.Value
+					dist[edge.ToVertex.Value] = dist[current.Vertex.Value] + edge.Weight
+					prev[edge.ToVertex.Value] = current.Vertex.Value // tova e samo za path
+					// IF NOT IN THE QUEUE
 					pq.Enqueue(store)
 				}
 			}
 		}
+
 	}
 	pathval := prev[endVertex.Value]
 	var finalArr []point
@@ -296,84 +305,63 @@ func getShortestPath(startVertex *Vertex, endVertex *Vertex, g *ItemGraph) ([]po
 
 }
 
-type point struct {
-	i int
-	j int
-}
-
-type Vertex struct {
-	Value point
-	Edges *[]*Vertex //->TODO
-}
-
-// node.a ima Edges
-type Edge struct {
-	ToVertex *Vertex
-	Weight   int
-}
-
 // tova za priority queue.to
 type VertexDistance struct {
 	Vertex   *Vertex
 	Distance int
 }
 
-type ItemGraph struct {
-	Vertexes []*Vertex
-	Edges    map[Vertex][]*Edge
-}
-
-type VertexDistanceQueue struct {
+type PriorityQueue struct {
 	Items []VertexDistance
 }
 
 // Enqueue adds an Node to the end of the queue
-func (s *VertexDistanceQueue) Enqueue(t VertexDistance) {
+func (s *PriorityQueue) Enqueue(t VertexDistance) {
 	if len(s.Items) == 0 {
 		s.Items = append(s.Items, t)
 		return
 	}
+
+	if t.Distance < s.Items[0].Distance {
+		s.Items = append([]VertexDistance{t}, s.Items...)
+		return
+	}
+
 	var insertFlag bool
-	for k, v := range s.Items {
-		if t.Distance < v.Distance {
-			if k > 0 {
-				s.Items = append(s.Items[:k+1], s.Items[k:]...)
-				s.Items[k] = t
-				insertFlag = true
-			} else {
-				s.Items = append([]VertexDistance{t}, s.Items...)
-				insertFlag = true
-			}
-		}
-		if insertFlag {
+	for i := 1; i < len(s.Items); i++ {
+		if t.Distance < s.Items[i].Distance {
+			s.Items = append(s.Items[:i+1], s.Items[i:]...)
+			s.Items[i] = t
+			insertFlag = true
 			break
 		}
 	}
+
 	if !insertFlag {
 		s.Items = append(s.Items, t)
 	}
 }
 
 // Dequeue removes an Node from the start of the queue
-func (s *VertexDistanceQueue) Dequeue() *VertexDistance {
+func (s *PriorityQueue) Dequeue() *VertexDistance {
 	item := s.Items[0]
-	s.Items = s.Items[1:len(s.Items)]
+	s.Items = s.Items[1:]
 	return &item
 }
 
 //NewQ Creates New Queue
-func (s *VertexDistanceQueue) NewQ() *VertexDistanceQueue {
+func (s *PriorityQueue) NewQ() *PriorityQueue {
 	s.Items = []VertexDistance{}
 	return s
 }
 
 // IsEmpty returns true if the queue is empty
-func (s *VertexDistanceQueue) IsEmpty() bool {
+func (s *PriorityQueue) IsEmpty() bool {
 	return len(s.Items) == 0
 }
 
 // Size returns the number of Nodes in the queue
-func (s *VertexDistanceQueue) Size() int {
+func (s *PriorityQueue) Size() int {
 	return len(s.Items)
 }
 
