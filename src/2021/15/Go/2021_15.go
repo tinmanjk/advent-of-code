@@ -122,16 +122,16 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 
 			// to the bottom
 			if i != lastIndexInMatrix {
-				inputData := FullEdge{}
+				fullEdge := FullEdge{}
 				destination := point{}
 
 				destination.i = i + 1
 				destination.j = j
 
-				inputData.Source = source
-				inputData.Destination = destination
-				inputData.Weight = matrixOfInts[i+1][j]
-				edgeList = append(edgeList, inputData)
+				fullEdge.Source = source
+				fullEdge.Destination = destination
+				fullEdge.Weight = matrixOfInts[i+1][j]
+				edgeList = append(edgeList, fullEdge)
 			}
 		}
 	}
@@ -142,6 +142,13 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 	startNode, endNode, itemGraph := CreateGraph(edgeList, fromPoint, toPoint)
 
 	finalArr, result = getShortestPath(startNode, endNode, itemGraph)
+
+	acc := 0
+	for i := 1; i < len(finalArr); i++ {
+		acc += matrixOfInts[finalArr[i].i][finalArr[i].j]
+	}
+
+	fmt.Println(acc)
 	return
 }
 
