@@ -42,18 +42,18 @@ func parseInput(slicesOfLines []string) (matrixOfInts [][]int) {
 	return
 }
 
+// TODO: Refactor possibly away
 func fiveXmatrix(matrixOfInts [][]int) (fiveXMatrix [][]int) {
 	fiveXMatrix = make([][]int, 5*len(matrixOfInts))
 	for i := 0; i < len(fiveXMatrix); i++ {
 		fiveXMatrix[i] = make([]int, 5*len(matrixOfInts))
 	}
 
-	// nadqsno
+	// to the right
 	size := len(matrixOfInts)
 	for k := 0; k < 5; k++ {
 		for i := 0; i < len(matrixOfInts); i++ {
 			for j := 0; j < len(matrixOfInts); j++ {
-				// if k == 0 {
 				fiveXMatrix[i][j+k*size] = matrixOfInts[i][j] + k
 				if fiveXMatrix[i][j+k*size] > 9 {
 					fiveXMatrix[i][j+k*size] = fiveXMatrix[i][j+k*size] % 9
@@ -65,7 +65,6 @@ func fiveXmatrix(matrixOfInts [][]int) (fiveXMatrix [][]int) {
 	for k := 1; k < 5; k++ {
 		for i := 0; i < len(matrixOfInts); i++ {
 			for j := 0; j < len(matrixOfInts); j++ {
-				// if k == 0 {
 				fiveXMatrix[i+k*size][j] = matrixOfInts[i][j] + k
 				if fiveXMatrix[i+k*size][j] > 9 {
 					fiveXMatrix[i+k*size][j] = fiveXMatrix[i+k*size][j] % 9
@@ -74,11 +73,10 @@ func fiveXmatrix(matrixOfInts [][]int) (fiveXMatrix [][]int) {
 		}
 	}
 
-	// pak nadqsno
+	// left
 	for k := 1; k < 5; k++ {
 		for i := size; i < size*5; i++ {
 			for j := 0; j < len(matrixOfInts); j++ {
-				// if k == 0 {
 				fiveXMatrix[i][j+k*size] = fiveXMatrix[i][j+(k-1)*size] + 1
 				if fiveXMatrix[i][j+k*size] > 9 {
 					fiveXMatrix[i][j+k*size] = fiveXMatrix[i][j+k*size] % 9
@@ -99,7 +97,6 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 	}
 
 	lastIndexInMatrix := len(matrixOfInts) - 1
-	// paddedMatrix := addPaddings(matrixOfInts, 99)
 
 	// Create EdgeList Representation ofthe Graph
 	var edgeList = []FullEdge{}
@@ -118,6 +115,12 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 				fullEdge.Destination = destination
 				fullEdge.Weight = matrixOfInts[i][j+1]
 				edgeList = append(edgeList, fullEdge)
+
+				// and to the left back
+				fullEdge.Destination = source
+				fullEdge.Source = destination
+				fullEdge.Weight = matrixOfInts[i][j]
+				edgeList = append(edgeList, fullEdge)
 			}
 
 			// to the bottom
@@ -131,6 +134,12 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 				fullEdge.Source = source
 				fullEdge.Destination = destination
 				fullEdge.Weight = matrixOfInts[i+1][j]
+				edgeList = append(edgeList, fullEdge)
+
+				// and to the up back
+				fullEdge.Destination = source
+				fullEdge.Source = destination
+				fullEdge.Weight = matrixOfInts[i][j]
 				edgeList = append(edgeList, fullEdge)
 			}
 		}
@@ -148,7 +157,7 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 		acc += matrixOfInts[finalArr[i].i][finalArr[i].j]
 	}
 
-	fmt.Println(acc)
+	// fmt.Println(acc)
 	return
 }
 
@@ -169,13 +178,6 @@ func (g *ItemGraph) AddEdge(n1, n2 *Vertex, weight int) {
 	}
 
 	g.Edges[n1] = append(g.Edges[n1], &ed1)
-
-	// bi-directional
-	ed2 := PartialEdge{
-		ToVertex: n1,
-		Weight:   weight,
-	}
-	g.Edges[n2] = append(g.Edges[n2], &ed2)
 }
 
 type FullEdge struct {
@@ -264,8 +266,7 @@ func getShortestPath(startVertex *Vertex, endVertex *Vertex, g *ItemGraph) ([]po
 						Distance: dist[current.Vertex.Value] + edge.Weight,
 					}
 					dist[edge.ToVertex.Value] = dist[current.Vertex.Value] + edge.Weight
-					prev[edge.ToVertex.Value] = current.Vertex.Value // tova e samo za path
-					// IF NOT
+					prev[edge.ToVertex.Value] = current.Vertex.Value
 					pq.Enqueue(store)
 				}
 			}
