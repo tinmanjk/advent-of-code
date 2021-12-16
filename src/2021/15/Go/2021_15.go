@@ -42,31 +42,6 @@ func parseInput(slicesOfLines []string) (matrixOfInts [][]int) {
 	return
 }
 
-func addPaddings(solutionsData [][]int, paddedValue int) (paddedSolutionsData [][]int) {
-
-	paddedSolutionsData = make([][]int, len(solutionsData))
-	for i := 0; i < len(solutionsData); i++ {
-		paddedSolutionsData[i] = append([]int{paddedValue}, solutionsData[i]...)
-		paddedSolutionsData[i] = append(paddedSolutionsData[i], paddedValue)
-	}
-
-	lenghtPaddedSingleLine := len(solutionsData[0]) + 2 // should be the same for all
-	paddedBeginRow := make([]int, lenghtPaddedSingleLine)
-	for i := 0; i < len(paddedBeginRow); i++ {
-		paddedBeginRow[i] = paddedValue
-	}
-	paddedEndRow := make([]int, lenghtPaddedSingleLine)
-	copy(paddedEndRow, paddedBeginRow)
-
-	paddedMatrix := make([][]int, 0)
-	paddedMatrix = append(paddedMatrix, paddedBeginRow)
-
-	paddedSolutionsData = append(paddedMatrix, paddedSolutionsData...)
-	paddedSolutionsData = append(paddedSolutionsData, paddedEndRow)
-
-	return
-}
-
 func fiveXmatrix(matrixOfInts [][]int) (fiveXMatrix [][]int) {
 	fiveXMatrix = make([][]int, 5*len(matrixOfInts))
 	for i := 0; i < len(fiveXMatrix); i++ {
@@ -123,15 +98,16 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 		matrixOfInts = fiveXmatrix(matrixOfInts)
 	}
 
-	paddedMatrix := addPaddings(matrixOfInts, 99)
+	lastIndexInMatrix := len(matrixOfInts) - 1
+	// paddedMatrix := addPaddings(matrixOfInts, 99)
 
 	// Create EdgeList Representation ofthe Graph
 	var edgeList = []FullEdge{}
-	for i := 1; i < len(paddedMatrix)-1; i++ {
-		for j := 1; j < len(paddedMatrix[i])-1; j++ {
+	for i := 0; i < len(matrixOfInts); i++ {
+		for j := 0; j < len(matrixOfInts); j++ {
 			source := point{i, j}
 			// to the right
-			if paddedMatrix[i][j+1] != 99 {
+			if j != lastIndexInMatrix {
 				fullEdge := FullEdge{}
 
 				destination := point{}
@@ -140,12 +116,12 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 
 				fullEdge.Source = source
 				fullEdge.Destination = destination
-				fullEdge.Weight = paddedMatrix[i][j+1]
+				fullEdge.Weight = matrixOfInts[i][j+1]
 				edgeList = append(edgeList, fullEdge)
 			}
 
 			// to the bottom
-			if paddedMatrix[i+1][j] != 99 {
+			if i != lastIndexInMatrix {
 				inputData := FullEdge{}
 				destination := point{}
 
@@ -154,14 +130,14 @@ func findResult(matrixOfInts [][]int, secondPart bool) (finalArr []point, result
 
 				inputData.Source = source
 				inputData.Destination = destination
-				inputData.Weight = paddedMatrix[i+1][j]
+				inputData.Weight = matrixOfInts[i+1][j]
 				edgeList = append(edgeList, inputData)
 			}
 		}
 	}
 
-	fromPoint := point{1, 1}
-	toPoint := point{len(paddedMatrix) - 2, len(paddedMatrix) - 2}
+	fromPoint := point{0, 0}
+	toPoint := point{lastIndexInMatrix, lastIndexInMatrix}
 
 	startNode, endNode, itemGraph := CreateGraph(edgeList, fromPoint, toPoint)
 
@@ -282,7 +258,7 @@ func getShortestPath(startVertex *Vertex, endVertex *Vertex, g *ItemGraph) ([]po
 					}
 					dist[edge.ToVertex.Value] = dist[current.Vertex.Value] + edge.Weight
 					prev[edge.ToVertex.Value] = current.Vertex.Value // tova e samo za path
-					// IF NOT IN THE QUEUE
+					// IF NOT
 					pq.Enqueue(store)
 				}
 			}
