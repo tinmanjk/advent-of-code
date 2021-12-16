@@ -1,17 +1,14 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
 	"math"
-	"os"
 	"strconv"
-	"strings"
 )
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	var result int64
 	byteArray := parseInput(lines)
 
@@ -241,19 +238,20 @@ func equalTo(nums []int64) (result int64) {
 	}
 	return 0
 }
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
 
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
+// func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
+// 	file, err := os.Open(filePath)
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
+// 	defer file.Close()
 
-	lines := strings.Split(string(rawBytes), "\n")
+// 	rawBytes, err := io.ReadAll(file)
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
 
-	return lines
-}
+// 	lines := strings.Split(string(rawBytes), "\n")
+
+// 	return lines
+// }

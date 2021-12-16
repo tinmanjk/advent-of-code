@@ -1,17 +1,15 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
 	"math"
-	"os"
 	"strconv"
 	"strings"
 )
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	var result int
 	mapOfPoints, instructions := parseInput(lines)
 
@@ -20,7 +18,7 @@ func main() {
 	fmt.Println(result)
 
 	// part 2
-	result = findResult(mapOfPoints, instructions, false)
+	findResult(mapOfPoints, instructions, false)
 }
 
 type point struct {
@@ -134,21 +132,4 @@ func fold(mapOfPoints map[point]point, axis string, units int) (foldedMap map[po
 		}
 	}
 	return
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }

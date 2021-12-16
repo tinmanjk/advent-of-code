@@ -1,13 +1,12 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"math"
 	"math/big"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -15,7 +14,7 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath) // 1 line
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath) // 1 line
 	fishTimeToNew := parseInput(lines)
 	var result uint64
 	var err error
@@ -90,23 +89,6 @@ func findResultBigInt(fishTimeToNew []int, numberDays int) (result big.Int) {
 		result.Add(&result, &v)
 	}
 	return result
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }
 
 func parseInput(slicesOfLines []string) (sliceOfInts []int) {

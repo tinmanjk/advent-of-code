@@ -1,28 +1,27 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"strconv"
 	"strings"
 )
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 
 	var result int
 	// task 01
 	randomNumbersStrings, listOfMatrices := parseInput(lines)
-	result = determineResultOfWin(randomNumbersStrings, listOfMatrices, true)
+	result = determineResultOfWin(randomNumbersStrings, listOfMatrices, false)
+
 	fmt.Println(result)
 	// task 02
 	// TODO fix need to re-parse input
 	randomNumbersStrings, listOfMatrices = parseInput(lines)
-	result = determineResultOfWin(randomNumbersStrings, listOfMatrices, false)
+	result = determineResultOfWin(randomNumbersStrings, listOfMatrices, true)
 	fmt.Println(result)
 }
 
@@ -128,23 +127,6 @@ func calculateScore(randomNumber string, matrix [][]string) (score int) {
 	convertedRandomNumber, _ := strconv.Atoi(randomNumber)
 	score *= convertedRandomNumber
 	return
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }
 
 func removeIndex(s []string, index int) []string {

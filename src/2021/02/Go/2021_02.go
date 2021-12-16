@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -12,7 +10,7 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	var result int
 	result = task01(lines)
 	fmt.Println(result)
@@ -65,29 +63,6 @@ func task02(lines []string) (result int) {
 	}
 
 	return horizontal * depth
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	// https://stackoverflow.com/questions/8757389/reading-a-file-line-by-line-in-go
-	file, err := os.Open(filePath)
-
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	sc := bufio.NewScanner(file)
-	lines := make([]string, 0)
-	// Read through 'tokens' until an EOF is encountered.
-	for sc.Scan() {
-		lines = append(lines, strings.TrimRight(sc.Text(), "\n "))
-	}
-
-	if err := sc.Err(); err != nil {
-		log.Panic(err)
-	}
-
-	return lines
 }
 
 func splitLine(line string) (direction string, value int) {

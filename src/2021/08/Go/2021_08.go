@@ -1,10 +1,8 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"sort"
 	"strings"
 )
@@ -12,7 +10,7 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	solutionData := parseInput(lines)
 
 	var result int
@@ -167,21 +165,4 @@ func setDiff(left string, right string) string {
 		}
 	}
 	return string(temp)
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }

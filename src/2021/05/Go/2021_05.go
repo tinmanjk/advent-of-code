@@ -1,10 +1,8 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -12,7 +10,7 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 
 	lineSegmentSlice := parseInput(lines)
 	var result int
@@ -98,8 +96,6 @@ func createMapPoints(lineSeg lineSegment, mapPoints map[point]int, includeDiagon
 			}
 		}
 	}
-
-	return
 }
 
 func findMinMax(number1 int, number2 int) (min int, max int) {
@@ -121,21 +117,4 @@ func upsertMapPointsCounts(x int, y int, mapPoints map[point]int) {
 		return
 	}
 	mapPoints[p] = 1
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }

@@ -2,10 +2,8 @@ package main
 
 import (
 	"aoc/libs/go/ds"
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"sort"
 	"strings"
 )
@@ -13,7 +11,7 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	var result int
 
 	// part 1
@@ -102,21 +100,4 @@ func findResult(inputData []string, partOne bool) (result int) {
 	sort.Ints(scores)
 	// odd number of scores always
 	return scores[len(scores)/2]
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }

@@ -1,15 +1,14 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
+
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"strings"
 )
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	var result int
 	graph := parseInput(lines)
 
@@ -75,7 +74,7 @@ func countPaths(g *Graph, current *Vertex, end *Vertex,
 
 	for _, v := range current.Vertices {
 		if numberVisits, ok := visitedTimes[v.Key]; ok && v.isSmall && numberVisits > 0 {
-			if oneSmallCaveTwiceOption == false {
+			if !oneSmallCaveTwiceOption {
 				continue
 			}
 
@@ -99,21 +98,4 @@ func findResult(graph *Graph, oneSmallCaveTwiceOption bool) (result int) {
 	result = countPaths(graph, start, end, visited, oneSmallCaveTwiceOption)
 
 	return
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }

@@ -1,11 +1,9 @@
 package main
 
 import (
+	"aoc/libs/go/inputParse"
 	"fmt"
-	"io"
-	"log"
 	"math"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,7 +12,7 @@ import (
 const inputPath = "../input.txt"
 
 func main() {
-	lines := returnSliceOfLinesFromFile(inputPath)
+	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
 	crabHorizontalPosition := parseInput(lines)
 
 	var result int
@@ -152,21 +150,4 @@ func findResult(numbers []int, variableRate bool, bruteforce bool, triangularNum
 	}
 
 	return
-}
-
-func returnSliceOfLinesFromFile(filePath string) (sliceOfLines []string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer file.Close()
-
-	rawBytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lines := strings.Split(string(rawBytes), "\n")
-
-	return lines
 }
