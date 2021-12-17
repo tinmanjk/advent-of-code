@@ -132,51 +132,37 @@ func findResult(targetArea TargetArea, partTwo bool, debug bool) (result int) {
 	for x, possibleStepsMadeToTarget := range validXVelocitiesSteps {
 		// STEP DETERMINATION
 		for _, stepsMadeToTarget := range possibleStepsMadeToTarget {
-		candidateY:
 			// TODO Find Out why targetArea.y1 is good boundary
 			for candidateY := targetArea.y1; candidateY <= -targetArea.y1; candidateY++ {
 
+				coorY, yVelocityAtStep := calcTravelY(candidateY, stepsMadeToTarget)
+				_, xVelocityAtStep := calcTravelX(x, stepsMadeToTarget)
+
+				if xVelocityAtStep == 0 { // Free Fall Case - x stationary, y increases
+					// save going up and then down - cancel each other out
+					if yVelocityAtStep > 0 {
+						yVelocityAtStep = -yVelocityAtStep - 1
+					}
+					for {
+						coorY += yVelocityAtStep
+						if coorY < targetArea.y1 { // "overshoot"
+							// return last not-overshooting  yVelocity to try below
+							coorY -= yVelocityAtStep
+							break
+						}
+
+						yVelocityAtStep--
+					}
+				}
+
 				// we have guaranteed x in
 				// find if candidateY's trajectory will be in y bounds
-				coorY, _ := calcTravelY(candidateY, stepsMadeToTarget)
 				if targetArea.y1 <= coorY && coorY <= targetArea.y2 {
 					velocitiesMap[Velocity{x, candidateY}] = Velocity{x, candidateY}
 					if candidateY >= highestY {
 						highestY = candidateY
-						continue
 					}
 				}
-
-				// 3. TRY STEPPING TOGETHER
-				// EQUALIZE X
-				_, xVelocityAtStep := calcTravelX(x, stepsMadeToTarget)
-				_, yVelocityAtStep := calcTravelY(candidateY, stepsMadeToTarget)
-
-				// Free Fall Case -> x is constant
-				if xVelocityAtStep == 0 {
-					if yVelocityAtStep > 0 {
-						freeFallVelocity := -yVelocityAtStep
-						freeFallVelocity--
-						yVelocityAtStep = freeFallVelocity
-					}
-					for {
-						coorY += yVelocityAtStep
-						yVelocityAtStep--
-						if targetArea.y1 <= coorY && coorY <= targetArea.y2 {
-							velocitiesMap[Velocity{x, candidateY}] = Velocity{x, candidateY}
-							if candidateY >= highestY {
-								highestY = candidateY
-								break
-							}
-						}
-
-						if coorY < targetArea.y1 {
-							// end for all assumption
-							continue candidateY
-						}
-					}
-				}
-
 			}
 		}
 
