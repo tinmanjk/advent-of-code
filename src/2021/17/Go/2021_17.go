@@ -54,7 +54,7 @@ type Velocity struct {
 	y int
 }
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 func findValidXVelocities(targetArea TargetArea) (validXVelocityStep map[int][]int) {
 
@@ -73,11 +73,14 @@ func findValidXVelocities(targetArea TargetArea) (validXVelocityStep map[int][]i
 		steps := []int{}
 		distanceTraveled := 0
 		countStep := 0
-		for i := xVelocity; i > 0 && distanceTraveled < targetArea.x2; i-- {
+		for i := xVelocity; i > 0; i-- {
 			distanceTraveled += i
 			countStep++
 			if targetArea.x1 <= distanceTraveled && distanceTraveled <= targetArea.x2 {
 				steps = append(steps, countStep)
+			}
+			if distanceTraveled > targetArea.x2 {
+				break
 			}
 		}
 		if len(steps) != 0 {
