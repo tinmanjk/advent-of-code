@@ -101,18 +101,24 @@ func calcTravelY(initialVelocity int, stepsToMake int) (coorY int, finalVelocity
 	return
 }
 
-// assuming positive X
-func calcTravelX(initialVelocity int, stepsToMake int) (coorX int, finalVelocity int) {
+// to implement start coord parameter
+func calcPossibleStartingYvelocities(inclLowBound int, inclUpperBound int, steps int) (possibleYs []int) {
 
-	finalVelocity = initialVelocity
-
-	for s := 0; s < stepsToMake; s++ {
-		if finalVelocity == 0 {
-			return
+	for targetY := inclLowBound; targetY <= inclUpperBound; targetY++ {
+		numberStartY := 1            // y
+		numbeDecreases := 0          // -1
+		for s := 1; s < steps; s++ { // no decrease during first step
+			numberStartY++
+			numbeDecreases++
 		}
-		coorX += finalVelocity
-		finalVelocity--
+		sumDecreases := -((numbeDecreases) * (numbeDecreases + 1) / 2)
+		// numberStartY * startY + sumDecreases = targetY
+		if (targetY-sumDecreases)%numberStartY == 0 { // no remainder - dealing with integers
+			startY := (targetY - sumDecreases) / numberStartY
+			possibleYs = append(possibleYs, startY)
+		}
 	}
+
 	return
 }
 
@@ -123,15 +129,20 @@ func findResult(targetArea TargetArea, partTwo bool) (result int) {
 	velocitiesMap := map[Velocity]Velocity{}
 	highestY := math.MinInt32
 	for x, possibleStepsMadeToTarget := range validXVelocitiesSteps {
-		// STEP DETERMINATION
 		for _, stepsMadeToTarget := range possibleStepsMadeToTarget {
-			// TODO Find Out why targetArea.y1 is good boundary
-			for candidateY := targetArea.y1; candidateY <= -targetArea.y1; candidateY++ {
+			if x != stepsMadeToTarget {
+				possibleYs := calcPossibleStartingYvelocities(targetArea.y1, targetArea.y2, stepsMadeToTarget)
+				for _, y := range possibleYs {
+					velocitiesMap[Velocity{x, y}] = Velocity{x, y}
+					if y >= highestY {
+						highestY = y
+					}
+				}
+			} else { // Free Fall Case - x stationary, y increases
+				// still need to determine boundaries for free fall case??
+				for candidateY := targetArea.y1; candidateY <= -targetArea.y1; candidateY++ {
+					coorY, yVelocityAtStep := calcTravelY(candidateY, stepsMadeToTarget)
 
-				coorY, yVelocityAtStep := calcTravelY(candidateY, stepsMadeToTarget)
-				_, xVelocityAtStep := calcTravelX(x, stepsMadeToTarget)
-
-				if xVelocityAtStep == 0 { // Free Fall Case - x stationary, y increases
 					// save going up and then down - cancel each other out
 					if yVelocityAtStep > 0 {
 						yVelocityAtStep = -yVelocityAtStep - 1
@@ -146,19 +157,16 @@ func findResult(targetArea TargetArea, partTwo bool) (result int) {
 
 						yVelocityAtStep--
 					}
-				}
 
-				// we have guaranteed x in
-				// find if candidateY's trajectory will be in y bounds
-				if targetArea.y1 <= coorY && coorY <= targetArea.y2 {
-					velocitiesMap[Velocity{x, candidateY}] = Velocity{x, candidateY}
-					if candidateY >= highestY {
-						highestY = candidateY
+					if targetArea.y1 <= coorY && coorY <= targetArea.y2 {
+						velocitiesMap[Velocity{x, candidateY}] = Velocity{x, candidateY}
+						if candidateY >= highestY {
+							highestY = candidateY
+						}
 					}
 				}
 			}
 		}
-
 	}
 
 	if partTwo {
