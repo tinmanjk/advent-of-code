@@ -66,7 +66,7 @@ func findValidXVelocities(targetArea TargetArea) (validXVelocityStep map[int][]i
 		maxTravelX := (xVelocity * (xVelocity + 1)) / 2 // n(n+1)/2 formula
 		if maxTravelX < targetArea.x1 {
 			break
-			// decreasing velocity with have even smaller maxTravel
+			// decreasing velocity will produce even smaller maxTravel
 		}
 
 		steps := []int{}
