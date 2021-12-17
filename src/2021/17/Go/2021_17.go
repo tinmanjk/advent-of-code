@@ -130,7 +130,7 @@ func findResult(targetArea TargetArea, partTwo bool) (result int) {
 	highestY := math.MinInt32
 	for x, possibleStepsMadeToTarget := range validXVelocitiesSteps {
 		for _, stepsMadeToTarget := range possibleStepsMadeToTarget {
-			if x != stepsMadeToTarget {
+			if x != stepsMadeToTarget { // 1 X to fixed number of Ys based on size of y area
 				possibleYs := calcPossibleStartingYvelocities(targetArea.y1, targetArea.y2, stepsMadeToTarget)
 				for _, y := range possibleYs {
 					velocitiesMap[Velocity{x, y}] = Velocity{x, y}
@@ -138,7 +138,7 @@ func findResult(targetArea TargetArea, partTwo bool) (result int) {
 						highestY = y
 					}
 				}
-			} else { // Free Fall Case - x stationary, y increases
+			} else { // Free Fall Case - x stationary, y increases -> Many possible Ys for 1 X
 				// still need to determine boundaries for free fall case??
 				for candidateY := targetArea.y1; candidateY <= -targetArea.y1; candidateY++ {
 					coorY, yVelocityAtStep := calcTravelY(candidateY, stepsMadeToTarget)
