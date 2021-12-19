@@ -119,41 +119,39 @@ explodeStrategy:
 			openPairTagCounter++
 		case ']':
 			openPairTagCounter--
-
 		}
+
 		if openPairTagCounter == 5 {
 			number = explodePair(number, i)
 			goto explodeStrategy
 		}
 	}
 
-	// in case no explode was found
+	// in case no explode was found - split strategy
 	for i := 0; i < len(number); i++ {
-		foundNumber := false
-		numberFound := 0
-		firstDigitIndex := 0
-		foundNumberAsString := ""
 
-		if '0' <= number[i] && number[i] <= '9' {
-			foundNumber = true
-			firstDigitIndex = i
-			additionalDigitsCount := 0
-			for j := i + 1; j < len(number); j++ {
-				if '0' <= number[j] && number[j] <= '9' {
-					additionalDigitsCount++
-				} else {
-					break
-				}
+		if !('0' <= number[i] && number[i] <= '9') {
+			continue
+		}
+
+		firstDigitIndex := i
+		lastDigitIndex := firstDigitIndex
+		for {
+			if '0' <= number[lastDigitIndex] && number[lastDigitIndex] <= '9' {
+				lastDigitIndex++
+			} else {
+				lastDigitIndex-- // last not valid at the time
+				break
 			}
-			lastDigitIndex := firstDigitIndex + additionalDigitsCount
-			foundNumberAsString = number[firstDigitIndex : lastDigitIndex+1]
-			numberFound, _ = strconv.Atoi(foundNumberAsString)
 		}
+		// single digit <10
+		if lastDigitIndex == firstDigitIndex {
+			continue
+		}
+		foundNumber := number[firstDigitIndex : lastDigitIndex+1]
 
-		if foundNumber && numberFound >= 10 {
-			number = splitBigIntoPair(number, firstDigitIndex, foundNumberAsString)
-			goto explodeStrategy
-		}
+		number = splitBigIntoPair(number, firstDigitIndex, foundNumber)
+		goto explodeStrategy
 	}
 
 	reduced = number
