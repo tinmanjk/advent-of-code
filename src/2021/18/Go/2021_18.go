@@ -109,7 +109,9 @@ func calcMagnitude(number string) (result int) {
 func reduceNumber(number string) (reduced string) {
 
 	// first just explode over ALL of the number
+explodeStrategy:
 	openPairTagCounter := 0
+	// traverse the whole number to find at least one explode
 	for i := 0; i < len(number); i++ {
 
 		switch number[i] {
@@ -120,13 +122,12 @@ func reduceNumber(number string) (reduced string) {
 
 		}
 		if openPairTagCounter == 5 {
-			reduced = explodePair(number, i)
-			reduced = reduceNumber(reduced)
-			return
+			number = explodePair(number, i)
+			goto explodeStrategy
 		}
 	}
 
-	// split case in case exploded didn't succeed
+	// in case no explode was found
 	for i := 0; i < len(number); i++ {
 		foundNumber := false
 		numberFound := 0
@@ -150,13 +151,12 @@ func reduceNumber(number string) (reduced string) {
 		}
 
 		if foundNumber && numberFound >= 10 {
-			reduced = splitBigIntoPair(number, firstDigitIndex, foundNumberAsString)
-			reduced = reduceNumber(reduced)
-			return
+			number = splitBigIntoPair(number, firstDigitIndex, foundNumberAsString)
+			goto explodeStrategy
 		}
 	}
 
-	reduced = number // bottom case if not returned early from traversal
+	reduced = number
 	return
 }
 
