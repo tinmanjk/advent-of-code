@@ -113,17 +113,6 @@ func findResult(scanners []*Scanner, partTwo bool) (result int) {
 		}
 	}
 
-	mapBeacons := map[coord]coord{}
-	for _, zs := range zeroScanners {
-		for _, beacon := range zs.beacons {
-			beaconCoord := coord{}
-			beaconCoord.x = beacon.dimVal["first"]
-			beaconCoord.y = beacon.dimVal["second"]
-			beaconCoord.z = beacon.dimVal["third"]
-			mapBeacons[beaconCoord] = beaconCoord
-		}
-	}
-
 	if partTwo {
 		// maxdistance
 		manhattanDistance := 0
@@ -146,6 +135,17 @@ func findResult(scanners []*Scanner, partTwo bool) (result int) {
 		}
 
 		return manhattanDistance
+	}
+
+	mapBeacons := map[coord]coord{}
+	for _, zs := range zeroScanners {
+		for _, beacon := range zs.beacons {
+			beaconCoord := coord{}
+			beaconCoord.x = beacon.dimVal["first"]
+			beaconCoord.y = beacon.dimVal["second"]
+			beaconCoord.z = beacon.dimVal["third"]
+			mapBeacons[beaconCoord] = beaconCoord
+		}
 	}
 
 	return len(mapBeacons)
