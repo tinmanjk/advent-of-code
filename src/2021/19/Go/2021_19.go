@@ -286,6 +286,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 				}
 
 				// TODO FIX
+				// doesn't hit
 				if len(otherDimensionUsed) == 0 {
 					// need to return because no match on this level
 					return false
@@ -301,6 +302,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 				}
 
 				// TODO
+				// doesn't hit perhapes refactor away
 				if len(previousCopied) == 0 {
 					return false
 				}
