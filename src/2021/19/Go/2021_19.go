@@ -250,69 +250,71 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 					compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
 				}
 			}
-		} else {
-			for p := 0; p < z; p++ {
-				previous := dimensionNames[p]
-				// We need to check the candidate dimensions found for the previous dimension
-				// e.g. "first" and "second flipped"
-				// each of those can have 1 or more diffs that have 12 indeces of beacon pairs
-				// unlikely but possible
+			goto CheckFound
+		}
 
-				// if the pairs of a prev candidate work for this dimension
-				// and produce a differently named dimension i.e. "third flipped"
-				// we mark the previous dimensions as Used (i.e. "second flipped")
+		for p := 0; p < z; p++ {
+			previous := dimensionNames[p]
+			// We need to check the candidate dimensions found for the previous dimension
+			// e.g. "first" and "second flipped"
+			// each of those can have 1 or more diffs that have 12 indeces of beacon pairs
+			// unlikely but possible
 
-				prevOtherDimensionUsed := map[string]bool{} // see check below loop
-				for otherDimTakenByPrev, diffIndecesMap := range compZeroOtherDimDiffs[previous] {
-					for o := 0; o < len(dimensionNames); o++ {
-						otherDim := dimensionNames[o]
-						if otherDim == otherDimTakenByPrev {
-							continue
+			// if the pairs of a prev candidate work for this dimension
+			// and produce a differently named dimension i.e. "third flipped"
+			// we mark the previous dimensions as Used (i.e. "second flipped")
+
+			prevOtherDimensionUsed := map[string]bool{} // see check below loop
+			for otherDimTakenByPrev, diffIndecesMap := range compZeroOtherDimDiffs[previous] {
+				for o := 0; o < len(dimensionNames); o++ {
+					otherDim := dimensionNames[o]
+					if otherDim == otherDimTakenByPrev {
+						continue
+					}
+
+					flipOther := false
+					// TODO mark Diff used or NOT
+					for _, indecesPairs := range diffIndecesMap {
+						diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
+							zeroDim, otherDim,
+							flipOther, checkAllBeacons, indecesPairs)
+						if len(diffToIndexPairs) != 0 {
+							compZeroOtherDimDiffs[zeroDim][otherDim] = diffToIndexPairs
+							prevOtherDimensionUsed[otherDimTakenByPrev] = true
 						}
+					}
 
-						flipOther := false
-						// TODO mark Diff used or NOT
-						for _, indecesPairs := range diffIndecesMap {
-							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
-								zeroDim, otherDim,
-								flipOther, checkAllBeacons, indecesPairs)
-							if len(diffToIndexPairs) != 0 {
-								compZeroOtherDimDiffs[zeroDim][otherDim] = diffToIndexPairs
-								prevOtherDimensionUsed[otherDimTakenByPrev] = true
-							}
-						}
+					if otherDim+"Flipped" == otherDimTakenByPrev {
+						continue
+					}
 
-						if otherDim+"Flipped" == otherDimTakenByPrev {
-							continue
-						}
-
-						flipOther = true
-						for _, indecesPairs := range diffIndecesMap {
-							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
-								zeroDim, otherDim,
-								flipOther, checkAllBeacons, indecesPairs)
-							if len(diffToIndexPairs) != 0 {
-								compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
-								prevOtherDimensionUsed[otherDimTakenByPrev] = true
-							}
+					flipOther = true
+					for _, indecesPairs := range diffIndecesMap {
+						diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
+							zeroDim, otherDim,
+							flipOther, checkAllBeacons, indecesPairs)
+						if len(diffToIndexPairs) != 0 {
+							compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
+							prevOtherDimensionUsed[otherDimTakenByPrev] = true
 						}
 					}
 				}
+			}
 
-				// none of the pairs from the previous dimension worked for the current one
-				if len(prevOtherDimensionUsed) == 0 {
-					return false
-				}
-				// filter out the
-				// non-used dimensions for previous as they cannot be chained to the current
-				for otherDimensionCandidate := range compZeroOtherDimDiffs[previous] {
-					if _, ok := prevOtherDimensionUsed[otherDimensionCandidate]; !ok {
-						delete(compZeroOtherDimDiffs[previous], otherDimensionCandidate)
-					}
+			// none of the pairs from the previous dimension worked for the current one
+			if len(prevOtherDimensionUsed) == 0 {
+				return false
+			}
+			// filter out the
+			// non-used dimensions for previous as they cannot be chained to the current
+			for otherDimensionCandidate := range compZeroOtherDimDiffs[previous] {
+				if _, ok := prevOtherDimensionUsed[otherDimensionCandidate]; !ok {
+					delete(compZeroOtherDimDiffs[previous], otherDimensionCandidate)
 				}
 			}
 		}
 
+	CheckFound:
 		// no other dimension found for the current zeroDim
 		if len(compZeroOtherDimDiffs[zeroDim]) == 0 {
 			return false
@@ -333,12 +335,6 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 		// 	counter++
 		// }
 
-	}
-
-	if len(compZeroOtherDimDiffs["first"]) != 1 ||
-		len(compZeroOtherDimDiffs["second"]) != 1 ||
-		len(compZeroOtherDimDiffs["third"]) != 1 {
-		return false // cannot determine a single other dimension for each zero dimension
 	}
 
 	// set zerobased coordinations of the other scanner
