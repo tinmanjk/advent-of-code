@@ -12,12 +12,12 @@ func main() {
 	imageEnhancement, inputImage := parseInput(lines)
 	var result int
 	// part 1
-	result = findResult(imageEnhancement, inputImage)
+	result = findResult(imageEnhancement, inputImage, 2)
 	fmt.Println(result)
 
-	// // part 2
-	// result = findResult(lines)
-	// fmt.Println(result)
+	// part 2
+	result = findResult(imageEnhancement, inputImage, 50)
+	fmt.Println(result)
 }
 
 func parseInput(lines []string) (imageEnhancement []rune, inputImage [][]rune) {
@@ -32,10 +32,10 @@ func parseInput(lines []string) (imageEnhancement []rune, inputImage [][]rune) {
 
 const inputPath = "../input.txt"
 
-func findResult(imageEnhancement []rune, inputImage [][]rune) (result int) {
+func findResult(imageEnhancement []rune, inputImage [][]rune, times int) (result int) {
 
 	outputImage := [][]rune{}
-	for i := 0; i < 2; i++ {
+	for i := 0; i < times; i++ {
 		outputImage = enhanceImage(imageEnhancement, inputImage, i)
 		inputImage = outputImage
 	}
