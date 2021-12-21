@@ -165,11 +165,13 @@ type pairIndeces struct {
 
 func getDiffZeroToOther12(zeroBased *Scanner, other *Scanner,
 	zDim string, oDim string, flipOther bool,
-	checkAllPairs bool, toCheckIndeces []pairIndeces) (mapDiffSliceIndeces map[int][]pairIndeces) {
+	checkAllBeaconPairs bool, toCheckIndeces []pairIndeces) (mapDiffSliceIndeces map[int][]pairIndeces) {
 
-	// map ot razlikata i count
+	// differences between two beacons on a certain dimension
+	// either all beacons with all beacons permutations
+	// or only check pairs of beacons
 	mapDiffSliceIndeces = map[int][]pairIndeces{}
-	if checkAllPairs {
+	if checkAllBeaconPairs {
 		for z := 0; z < len(zeroBased.beacons); z++ {
 			for o := 0; o < len(other.beacons); o++ {
 				zeroBeacon := zeroBased.beacons[z]
@@ -208,14 +210,14 @@ func getDiffZeroToOther12(zeroBased *Scanner, other *Scanner,
 		}
 	}
 
-	mapFiltered := map[int][]pairIndeces{}
+	//https://stackoverflow.com/questions/23229975/is-it-safe-to-remove-selected-keys-from-map-within-a-range-loop
 	for diff, indeces := range mapDiffSliceIndeces {
-		if len(indeces) >= 12 {
-			mapFiltered[diff] = indeces
+		if len(indeces) < 12 {
+			delete(mapDiffSliceIndeces, diff)
 		}
 	}
 
-	return mapFiltered
+	return
 }
 
 func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
@@ -231,102 +233,101 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 		zeroDim := dimensionNames[z]
 		compZeroOtherDimDiffs[zeroDim] = map[string]map[int][]pairIndeces{}
 		firstDimension := (z == 0)
-		checkAll := firstDimension
+		checkAllBeacons := firstDimension
 		if firstDimension {
 			for o := 0; o < len(dimensionNames); o++ {
 				otherDim := dimensionNames[o]
 
 				flipOther := false
-				diffToIndexPairs := getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
-					flipOther, checkAll, nil)
+				diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
+					zeroDim, otherDim,
+					flipOther, checkAllBeacons, nil)
 				if len(diffToIndexPairs) != 0 {
 					compZeroOtherDimDiffs[zeroDim][otherDim] = diffToIndexPairs
 				}
 
 				flipOther = true
-				diffToIndexPairs = getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
-					flipOther, checkAll, nil)
+				diffToIndexPairs = getDiffZeroToOther12(zeroBased, other,
+					zeroDim, otherDim,
+					flipOther, checkAllBeacons, nil)
 				if len(diffToIndexPairs) != 0 {
 					compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
 				}
-
 			}
 		} else {
 			for p := 0; p < z; p++ {
 				previous := dimensionNames[p]
-				previousDimensionCandidates := compZeroOtherDimDiffs[previous]
+				// We need to check the candidate dimensions found for the previous dimension
+				// e.g. "first" and "second flipped"
+				// each of those can have 1 or more diffs that have 12 indeces of beacon pairs
+				// unlikely but possible
 
-				previousOtherDimension := map[string]bool{}
-				for otherDimensionTaken, diffIndecesMap := range previousDimensionCandidates {
+				// if the pairs of a prev candidate work for this dimension
+				// and produce a differently named dimension i.e. "third flipped"
+				// we mark the previous dimensions as Used (i.e. "second flipped")
+
+				prevOtherDimensionUsed := map[string]bool{} // see check below loop
+				for otherDimTakenByPrev, diffIndecesMap := range compZeroOtherDimDiffs[previous] {
 					for o := 0; o < len(dimensionNames); o++ {
-						flipOther := false
 						otherDim := dimensionNames[o]
-						if otherDim == otherDimensionTaken {
+						if otherDim == otherDimTakenByPrev {
 							continue
 						}
-						for _, indecesPairs := range diffIndecesMap {
 
-							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
-								flipOther, checkAll, indecesPairs)
+						flipOther := false
+						for _, indecesPairs := range diffIndecesMap {
+							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
+								zeroDim, otherDim,
+								flipOther, checkAllBeacons, indecesPairs)
 							if len(diffToIndexPairs) != 0 {
 								compZeroOtherDimDiffs[zeroDim][otherDim] = diffToIndexPairs
-								previousOtherDimension[otherDimensionTaken] = true
+								prevOtherDimensionUsed[otherDimTakenByPrev] = true
 							}
+						}
+
+						if otherDim+"Flipped" == otherDimTakenByPrev {
+							continue
 						}
 
 						flipOther = true
-						if otherDim+"Flipped" == otherDimensionTaken {
-							continue
-						}
 						for _, indecesPairs := range diffIndecesMap {
-							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
-								flipOther, checkAll, indecesPairs)
+							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
+								zeroDim, otherDim,
+								flipOther, checkAllBeacons, indecesPairs)
 							if len(diffToIndexPairs) != 0 {
 								compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
-								previousOtherDimension[otherDimensionTaken] = true
+								prevOtherDimensionUsed[otherDimTakenByPrev] = true
 							}
 						}
 					}
-					// tuka ako nqma compZeroOther[zeroDim] trqbva da go triem otherDimensionTaken
-
-					// eto tuka
 				}
 
-				// TODO FIX
-				// doesn't hit
-				if len(previousOtherDimension) == 0 {
-					// need to return because no match on this level
+				// none of the pairs from the previous dimension worked for the current one
+				if len(prevOtherDimensionUsed) == 0 {
 					return false
 				}
 				// filter out the
-				// make a copy
-				// previousCopied
-				previousCopied := map[string]map[int][]pairIndeces{}
-				for k, v := range compZeroOtherDimDiffs[previous] {
-					if _, ok := previousOtherDimension[k]; ok {
-						previousCopied[k] = v
+				// non-used dimensions for previous as they cannot be chained to the current
+				for otherDimensionCandidate := range compZeroOtherDimDiffs[previous] {
+					if _, ok := prevOtherDimensionUsed[otherDimensionCandidate]; !ok {
+						delete(compZeroOtherDimDiffs[previous], otherDimensionCandidate)
 					}
 				}
-
-				// TODO
-				// doesn't hit perhapes refactor away
-				if len(previousCopied) == 0 {
-					return false
-				}
-
-				compZeroOtherDimDiffs[previous] = previousCopied
 			}
 		}
 
+		// no other dimension found for the current zeroDim
 		if len(compZeroOtherDimDiffs[zeroDim]) == 0 {
 			return false
 		}
 	}
 
-	// MAKE CHECKS
+	if len(compZeroOtherDimDiffs["first"]) != 1 ||
+		len(compZeroOtherDimDiffs["second"]) != 1 ||
+		len(compZeroOtherDimDiffs["third"]) != 1 {
+		return false // cannot determine a single other dimension for each zero dimension
+	}
 
-	// should be just ONE
-	// diff no use at the moment
 	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["first"] {
 		if strings.Contains(dimension, "Flipped") {
 			other.first.orientation = "neg"
@@ -338,7 +339,6 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 		for diff := range mapDiffIndeces {
 			other.x = diff
 		}
-
 	}
 
 	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["second"] {
