@@ -220,18 +220,16 @@ func getDiffZeroToOther12(zeroBased *Scanner, other *Scanner,
 
 func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 
-	compZeroOther := map[string]map[string]map[int][]pairIndeces{}
+	compZeroOtherDimDiffs := map[string]map[string]map[int][]pairIndeces{}
 	dimensionNames := []string{
 		"first", "second", "third",
 	}
-
-	compZeroOtherFiltered := map[string]map[string]map[int][]pairIndeces{}
 
 	for z := 0; z < len(dimensionNames); z++ {
 		// we dont'have matches so we compare ALL
 		// at 0 -> we need to optimizer for second and third
 		zeroDim := dimensionNames[z]
-		compZeroOther[zeroDim] = map[string]map[int][]pairIndeces{}
+		compZeroOtherDimDiffs[zeroDim] = map[string]map[int][]pairIndeces{}
 		firstDimension := (z == 0)
 		checkAll := firstDimension
 		if firstDimension {
@@ -239,21 +237,27 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 				otherDim := dimensionNames[o]
 
 				flipOther := false
-				compZeroOther[zeroDim][otherDim] = getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
+				diffToIndexPairs := getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
 					flipOther, checkAll, nil)
+				if len(diffToIndexPairs) != 0 {
+					compZeroOtherDimDiffs[zeroDim][otherDim] = diffToIndexPairs
+				}
 
 				flipOther = true
-				compZeroOther[zeroDim][otherDim+"Flipped"] = getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
+				diffToIndexPairs = getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
 					flipOther, checkAll, nil)
+				if len(diffToIndexPairs) != 0 {
+					compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
+				}
 
 			}
 		} else {
 			for p := 0; p < z; p++ {
 				previous := dimensionNames[p]
-				previousDimensionFiltered := compZeroOtherFiltered[previous]
+				previousDimensionCandidates := compZeroOtherDimDiffs[previous]
 
-				otherDimensionUsed := map[string]bool{}
-				for otherDimensionTaken, diffIndecesMap := range previousDimensionFiltered {
+				previousOtherDimension := map[string]bool{}
+				for otherDimensionTaken, diffIndecesMap := range previousDimensionCandidates {
 					for o := 0; o < len(dimensionNames); o++ {
 						flipOther := false
 						otherDim := dimensionNames[o]
@@ -261,10 +265,12 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 							continue
 						}
 						for _, indecesPairs := range diffIndecesMap {
-							compZeroOther[zeroDim][otherDim] = getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
+
+							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
 								flipOther, checkAll, indecesPairs)
-							if len(compZeroOther[zeroDim][otherDim]) > 0 {
-								otherDimensionUsed[otherDimensionTaken] = true
+							if len(diffToIndexPairs) != 0 {
+								compZeroOtherDimDiffs[zeroDim][otherDim] = diffToIndexPairs
+								previousOtherDimension[otherDimensionTaken] = true
 							}
 						}
 
@@ -273,10 +279,11 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 							continue
 						}
 						for _, indecesPairs := range diffIndecesMap {
-							compZeroOther[zeroDim][otherDim+"Flipped"] = getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
+							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other, zeroDim, otherDim,
 								flipOther, checkAll, indecesPairs)
-							if len(compZeroOther[zeroDim][otherDim+"Flipped"]) > 0 {
-								otherDimensionUsed[otherDimensionTaken] = true
+							if len(diffToIndexPairs) != 0 {
+								compZeroOtherDimDiffs[zeroDim][otherDim+"Flipped"] = diffToIndexPairs
+								previousOtherDimension[otherDimensionTaken] = true
 							}
 						}
 					}
@@ -287,7 +294,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 
 				// TODO FIX
 				// doesn't hit
-				if len(otherDimensionUsed) == 0 {
+				if len(previousOtherDimension) == 0 {
 					// need to return because no match on this level
 					return false
 				}
@@ -295,8 +302,8 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 				// make a copy
 				// previousCopied
 				previousCopied := map[string]map[int][]pairIndeces{}
-				for k, v := range compZeroOtherFiltered[previous] {
-					if _, ok := otherDimensionUsed[k]; ok {
+				for k, v := range compZeroOtherDimDiffs[previous] {
+					if _, ok := previousOtherDimension[k]; ok {
 						previousCopied[k] = v
 					}
 				}
@@ -307,21 +314,11 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 					return false
 				}
 
-				compZeroOtherFiltered[previous] = previousCopied
+				compZeroOtherDimDiffs[previous] = previousCopied
 			}
 		}
 
-		// SET CcompZEROOTHERFILTERED copy of compZeroOther...s removed
-		compZeroOtherFiltered[zeroDim] = map[string]map[int][]pairIndeces{}
-		for otherDimension, mapDifferencesToPairs := range compZeroOther[zeroDim] {
-			if len(mapDifferencesToPairs) == 0 {
-				continue
-			}
-			compZeroOtherFiltered[zeroDim][otherDimension] = compZeroOther[zeroDim][otherDimension]
-			// "firstFlipped" -> 68 -> pairIndexes
-		}
-		// check after first if nothing matches then bye bye
-		if len(compZeroOtherFiltered[zeroDim]) == 0 {
+		if len(compZeroOtherDimDiffs[zeroDim]) == 0 {
 			return false
 		}
 	}
@@ -330,7 +327,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 
 	// should be just ONE
 	// diff no use at the moment
-	for dimension, mapDiffIndeces := range compZeroOtherFiltered["first"] {
+	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["first"] {
 		if strings.Contains(dimension, "Flipped") {
 			other.first.orientation = "neg"
 			other.first.dimension = strings.Split(dimension, "Flipped")[0]
@@ -344,7 +341,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 
 	}
 
-	for dimension, mapDiffIndeces := range compZeroOtherFiltered["second"] {
+	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["second"] {
 		if strings.Contains(dimension, "Flipped") {
 			other.second.orientation = "neg"
 			other.second.dimension = strings.Split(dimension, "Flipped")[0]
@@ -358,7 +355,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 		}
 	}
 
-	for dimension, mapDiffIndeces := range compZeroOtherFiltered["third"] {
+	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["third"] {
 		if strings.Contains(dimension, "Flipped") {
 			other.third.orientation = "neg"
 			other.third.dimension = strings.Split(dimension, "Flipped")[0]
