@@ -4,6 +4,7 @@ import (
 	"aoc/libs/go/inputParse"
 	"aoc/libs/go/matrixHelpers"
 	"fmt"
+	"log"
 )
 
 func main() {
@@ -29,16 +30,25 @@ func parseInput(lines []string) (imageEnhancement []rune, inputImage [][]rune) {
 	return
 }
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 func findResult(imageEnhancement []rune, inputImage [][]rune) (result int) {
 
 	outputImage := [][]rune{}
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 2; i++ {
 		outputImage = enhanceImage(imageEnhancement, inputImage, i)
+		inputImage = outputImage
 	}
 
-	return len(outputImage)
+	counterLight := 0
+	for i := 0; i < len(outputImage); i++ {
+		for j := 0; j < len(outputImage[i]); j++ {
+			if outputImage[i][j] == '#' {
+				counterLight++
+			}
+		}
+	}
+	return counterLight
 }
 
 func determineRestOfInfinite(time int, imageEnhancement []rune) (restOfInfinite rune) {
@@ -78,5 +88,44 @@ func enhanceImage(imageEnhancement []rune, inputImage [][]rune, time int) (outpu
 
 	adjacentInputImage := matrixHelpers.AddPaddingsWithRunes(inputImage, restOfInfinite)
 
-	return adjacentInputImage
+	// to write result here
+	outputImage = make([][]rune, len(adjacentInputImage))
+
+	paddedAdjacentInputImage := matrixHelpers.AddPaddingsWithRunes(adjacentInputImage, restOfInfinite)
+	for i := 1; i < len(paddedAdjacentInputImage)-1; i++ {
+		outputImage[i-1] = make([]rune, len(paddedAdjacentInputImage[i])-2) // -2  because of padding
+		for j := 1; j < len(paddedAdjacentInputImage[i])-1; j++ {
+			// determine number
+			outPutPixel := []rune{}
+			for r := i - 1; r <= i+1; r++ {
+				for c := j - 1; c <= j+1; c++ {
+					digit := '0'
+					if paddedAdjacentInputImage[r][c] == '#' {
+						digit = '1'
+					}
+					outPutPixel = append(outPutPixel, digit)
+				}
+			}
+
+			indexFromEnhancer := convertFromBinary(outPutPixel)
+			newPixel := imageEnhancement[indexFromEnhancer]
+			outputImage[i-1][j-1] = newPixel
+		}
+
+	}
+
+	return outputImage
+}
+
+func convertFromBinary(binaryString []rune) (result int) {
+	for i := 0; i < len(binaryString); i++ {
+		if !(binaryString[i] == '0' || binaryString[i] == '1') {
+			log.Panic("Only accept 0 and 1 in string")
+		}
+		result <<= 1 // make place to the left
+		if binaryString[i] == '1' {
+			result |= 1
+		}
+	}
+	return
 }
