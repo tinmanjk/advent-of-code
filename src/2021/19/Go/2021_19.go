@@ -67,9 +67,7 @@ type DimOrient struct {
 
 type Scanner struct {
 	beacons            []*Beacon
-	first              DimOrient
-	second             DimOrient
-	third              DimOrient
+	dimOrientation     map[string]DimOrient
 	x                  int
 	y                  int
 	z                  int
@@ -85,12 +83,10 @@ func findResult(scanners []*Scanner, partTwo bool) (result int) {
 	zeroScanner.y = 0
 	zeroScanner.z = 0
 	zeroScanner.hasZeroCoordinates = true
-	zeroScanner.first.dimension = "x"
-	zeroScanner.first.orientation = "pos"
-	zeroScanner.second.dimension = "y"
-	zeroScanner.second.orientation = "pos"
-	zeroScanner.third.dimension = "z"
-	zeroScanner.third.orientation = "pos"
+	zeroScanner.dimOrientation = map[string]DimOrient{}
+	zeroScanner.dimOrientation["first"] = DimOrient{"x", "pos"}
+	zeroScanner.dimOrientation["second"] = DimOrient{"y", "pos"}
+	zeroScanner.dimOrientation["third"] = DimOrient{"z", "pos"}
 
 	zeroScanners := []*Scanner{zeroScanner}
 	for len(zeroScanners) != len(scanners) {
@@ -275,6 +271,7 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 						}
 
 						flipOther := false
+						// TODO mark Diff used or NOT
 						for _, indecesPairs := range diffIndecesMap {
 							diffToIndexPairs := getDiffZeroToOther12(zeroBased, other,
 								zeroDim, otherDim,
@@ -322,134 +319,98 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 		}
 	}
 
+	// dimensionNames -> "first, second, third"
+	for _, dimName := range dimensionNames {
+		// only one dimension candidate left
+		if len(compZeroOtherDimDiffs[dimName]) != 1 {
+			return false // cannot determine a single other dimension for each zero dimension
+		}
+
+		// within a dimension there is only ONE diff
+		// only one diff left TODO
+		// counter := 0
+		// for _, _ := range compZeroOtherDimDiffs[dimName] {
+		// 	counter++
+		// }
+
+	}
+
 	if len(compZeroOtherDimDiffs["first"]) != 1 ||
 		len(compZeroOtherDimDiffs["second"]) != 1 ||
 		len(compZeroOtherDimDiffs["third"]) != 1 {
 		return false // cannot determine a single other dimension for each zero dimension
 	}
 
-	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["first"] {
-		if strings.Contains(dimension, "Flipped") {
-			other.first.orientation = "neg"
-			other.first.dimension = strings.Split(dimension, "Flipped")[0]
-		} else {
-			other.first.orientation = "pos"
-			other.first.dimension = dimension
-		}
-		for diff := range mapDiffIndeces {
-			other.x = diff
+	// set zerobased coordinations of the other scanner
+	other.dimOrientation = map[string]DimOrient{}
+	for _, dimName := range dimensionNames {
+		// should be just one dimension -> no way of accessing it
+		// TODO - find out a better way for First or Default then iterating here
+		for dimension, mapDiffIndeces := range compZeroOtherDimDiffs[dimName] {
+			if strings.Contains(dimension, "Flipped") {
+				dimensionOnly := strings.Split(dimension, "Flipped")[0]
+				other.dimOrientation[dimName] = DimOrient{dimensionOnly, "neg"}
+			} else {
+				other.dimOrientation[dimName] = DimOrient{dimension, "pos"}
+			}
+
+			// see above that only ONE diff
+			diffFound := math.MaxInt32
+			// len of mapDifferences is 1
+			for diff := range mapDiffIndeces {
+				diffFound = diff
+			}
+
+			switch dimName {
+			case "first":
+				other.x = diffFound
+			case "second":
+				other.y = diffFound
+			case "third":
+				other.z = diffFound
+			}
 		}
 	}
-
-	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["second"] {
-		if strings.Contains(dimension, "Flipped") {
-			other.second.orientation = "neg"
-			other.second.dimension = strings.Split(dimension, "Flipped")[0]
-		} else {
-			other.second.orientation = "pos"
-			other.second.dimension = dimension
-		}
-
-		for diff := range mapDiffIndeces {
-			other.y = diff
-		}
-	}
-
-	for dimension, mapDiffIndeces := range compZeroOtherDimDiffs["third"] {
-		if strings.Contains(dimension, "Flipped") {
-			other.third.orientation = "neg"
-			other.third.dimension = strings.Split(dimension, "Flipped")[0]
-		} else {
-			other.third.orientation = "pos"
-			other.third.dimension = dimension
-		}
-
-		for diff := range mapDiffIndeces {
-			other.z = diff
-		}
-	}
-
 	other.hasZeroCoordinates = true
 
+	// other scanner beacons zero coordinates
 	for _, beacon := range other.beacons {
 		saveFirst := beacon.dimVal["first"]
 		saveSecond := beacon.dimVal["second"]
 		saveThird := beacon.dimVal["third"]
 
-		switch other.first.dimension {
-		case "first":
-			if other.first.orientation == "neg" {
-				beacon.dimVal["first"] = -saveFirst
-			} else {
-				beacon.dimVal["first"] = saveFirst
-			}
-		case "second":
-			if other.first.orientation == "neg" {
-				beacon.dimVal["first"] = -saveSecond
-			} else {
-				beacon.dimVal["first"] = saveSecond
-			}
-		case "third":
-			if other.first.orientation == "neg" {
-				beacon.dimVal["first"] = -saveThird
-			} else {
-				beacon.dimVal["first"] = saveThird
-			}
-		}
-
-		switch other.second.dimension {
-		case "first":
-			if other.second.orientation == "neg" {
-				beacon.dimVal["second"] = -saveFirst
-			} else {
-				beacon.dimVal["second"] = saveFirst
-			}
-		case "second":
-			if other.second.orientation == "neg" {
-				beacon.dimVal["second"] = -saveSecond
-			} else {
-				beacon.dimVal["second"] = saveSecond
-			}
-		case "third":
-			if other.second.orientation == "neg" {
-				beacon.dimVal["second"] = -saveThird
-			} else {
-				beacon.dimVal["second"] = saveThird
+		for _, dimName := range dimensionNames {
+			switch other.dimOrientation[dimName].dimension {
+			case "first":
+				if other.dimOrientation[dimName].orientation == "neg" {
+					beacon.dimVal[dimName] = -saveFirst
+				} else {
+					beacon.dimVal[dimName] = saveFirst
+				}
+			case "second":
+				if other.dimOrientation[dimName].orientation == "neg" {
+					beacon.dimVal[dimName] = -saveSecond
+				} else {
+					beacon.dimVal[dimName] = saveSecond
+				}
+			case "third":
+				if other.dimOrientation[dimName].orientation == "neg" {
+					beacon.dimVal[dimName] = -saveThird
+				} else {
+					beacon.dimVal[dimName] = saveThird
+				}
 			}
 		}
 
-		switch other.third.dimension {
-		case "first":
-			if other.third.orientation == "neg" {
-				beacon.dimVal["third"] = -saveFirst
-			} else {
-				beacon.dimVal["third"] = saveFirst
-			}
-		case "second":
-			if other.third.orientation == "neg" {
-				beacon.dimVal["third"] = -saveSecond
-			} else {
-				beacon.dimVal["third"] = saveSecond
-			}
-		case "third":
-			if other.third.orientation == "neg" {
-				beacon.dimVal["third"] = -saveThird
-			} else {
-				beacon.dimVal["third"] = saveThird
-			}
-		}
-
-		beacon.x = other.x + beacon.dimVal["first"]
-		beacon.y = other.y + beacon.dimVal["second"]
-		beacon.z = other.z + beacon.dimVal["third"]
-
-		beacon.dimVal["first"] = beacon.x
-		beacon.dimVal["second"] = beacon.y
-		beacon.dimVal["third"] = beacon.z
-
+		// zero-based coordinates for beacons
+		beacon.dimVal["first"] += other.x
+		beacon.dimVal["second"] += other.y
+		beacon.dimVal["third"] += other.z
+		beacon.x = beacon.dimVal["first"]
+		beacon.y = beacon.dimVal["second"]
+		beacon.z = beacon.dimVal["third"]
 		beacon.hasZeroCoordinates = true
 	}
-	// rewrite beacons
 
 	return true
 }
