@@ -376,20 +376,22 @@ func checkTwoScannersOverlap(zeroBased *Scanner, other *Scanner) bool {
 		saveThird := beacon.dimVal["third"]
 
 		for _, dimName := range dimensionNames {
-			switch other.dimOrientation[dimName].dimension {
-			case "first":
+			switch {
+			//dimName can be e.g. "second" with corresponding "first neg (first Flipped)""
+			case other.dimOrientation[dimName].dimension == "first":
 				if other.dimOrientation[dimName].orientation == "neg" {
+					// so save first negative in the second dimension slot
 					beacon.dimVal[dimName] = -saveFirst
 				} else {
 					beacon.dimVal[dimName] = saveFirst
 				}
-			case "second":
+			case other.dimOrientation[dimName].dimension == "second":
 				if other.dimOrientation[dimName].orientation == "neg" {
 					beacon.dimVal[dimName] = -saveSecond
 				} else {
 					beacon.dimVal[dimName] = saveSecond
 				}
-			case "third":
+			case other.dimOrientation[dimName].dimension == "third":
 				if other.dimOrientation[dimName].orientation == "neg" {
 					beacon.dimVal[dimName] = -saveThird
 				} else {
