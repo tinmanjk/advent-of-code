@@ -262,7 +262,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 	// 2 / 5 / 5 / 8
 	result := []Cuboid{}
 	if xNoDiff {
-		// 1. equal - whole line - DONE - 4/64
 		// 0 / 1 / 1 / 2
 		if yNoDiff {
 
@@ -293,7 +292,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			return result
 		}
 
-		// 2. leftbound to the middle somewhere - DONE - 8/64
 		// 1 / 3 / 3 / 5
 		if yDiffTop {
 
@@ -317,7 +315,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			}
 
 			// 3 diffs
-			// 3. rightbound to middle somewhere
 			if zDiffBottom {
 
 				// 2 by Y
@@ -330,7 +327,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			}
 
 			// 5 diffs
-			// 4. center somehow
 			if zDiffTopBottom {
 
 				// 3 by Y
@@ -344,51 +340,47 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			}
 		}
 
-		// 3. rightbound to middle somewhere DONE - 12 / 64
 		// 1 / 3 / 3 / 5
 		if yDiffBottom {
 
 			// 1 diff
 			if zNoDiff {
-
+				// by y
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 				return []Cuboid{diff1}
 			}
 
 			// 3 diffs
-			// 2. leftbound to the middle somewhere
 			if zDiffTop {
 
-				// 2 combinations for yNoOverlap - outer if
+				// by y
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
 
-				// 1 combination for zNoOverlap s y1
+				// by z
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
 				return []Cuboid{diff1, diff3}
 			}
 
 			// 3 diffs
-			// 3. rightbound to middle somewhere
 			if zDiffBottom {
 
-				// 2 combinations for yNoOverlap - outer if
+				// by z
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
 
-				// 1 combination for zNoOverlap s y1
+				// by y
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
 				return []Cuboid{diff1, diff3}
 			}
 
 			// 5 diffs
-			// 4. center somehow
 			if zDiffTopBottom {
 
-				// 3 combination for y1noLT
+				// by y
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
 
-				// 2 combination for overlapped.y1
+				// by z
 				diff4 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
@@ -396,13 +388,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			}
 		}
 
-		// 4. center somehow DONE 16/64
 		// 2 / 5 / 5 / 8
 		if yDiffTopBottom {
 
 			// 2 diffs
 			if zNoDiff {
-				// 2 diffs
+				// by y
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 				diff2 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 
@@ -410,52 +401,39 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			}
 
 			// 5 diffs
-			// 2. leftbound to the middle somewhere
 			if zDiffTop {
 
-				// should be 5 diffs
-				// all combinations for y1nolT and y2nolB with zol and no t
+				// by y
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
-
 				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 
-				// last combination
-
+				// by z
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
 				return []Cuboid{diff1, diff3, diff5}
 			}
 
 			// 5 diffs
-			// 3. rightbound to middle somewhere
 			if zDiffBottom {
-				// again should be 5 diffs
 
-				// should be 5 diffs
-				// all combinations for y1nolT and y2nolB with zol and no t
+				// by y
 				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
 				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
-				// last combination
-
+				// by z
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
 				return []Cuboid{diff2, diff4, diff5}
 			}
 
 			// 8 diffs
-			// 4. center somehow
 			if zDiffTopBottom {
-				// we have 2 centers // 4 total different
-				// 8 combinations basically
 
-				// pochvame s y1nolb
+				// by y
 				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
-				// sled tova y1nolT
 				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
-				//sega e s dvete sredni na z1 pri overlap
-
+				// by z
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff8 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
@@ -481,40 +459,34 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTop {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, dTz2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 				// ot x.a pochvame
 			}
 			// 3 diff.a
 			if zDiffBottom {
 
-				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				// 1 combination for zNoOverlap s y1
+				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, ol.z2}
 
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff2, diff3}
 			}
 			// 5 diff.a
 			if zDiffTopBottom {
 
 				// 3 combination for y1noLT
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dTz2}
 				// 2 combination for overlapped.y1
 
 				diff4 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff4, diff5}
 			}
 		}
 
@@ -524,13 +496,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zNoDiff {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dTx1, dTx2, ol.y1, dTy2, ol.z1, ol.z2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 
 			}
 
@@ -541,13 +512,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				diff1 := Cuboid{dTx1, dTx2, ol.y1, dTy2, ol.z1, dTz2}
 
 				// 2. po y
-				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff5, diff6, diff7}
+				return []Cuboid{diff1, diff5, diff7}
 
 			}
 
@@ -558,13 +528,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				diff2 := Cuboid{dTx1, dTx2, ol.y1, dTy2, dBz1, ol.z2}
 
 				// 2. po y
-				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
+				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff2, diff5, diff6, diff7}
+				return []Cuboid{diff2, diff6, diff7}
 
 			}
 
@@ -915,7 +884,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 
 				// po y - 4 - only  overlapped.x1 available
 				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
-
 				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 				// z -> 1 -> only x and y overlaps
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
@@ -931,7 +899,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, dBz1, ol.z2}
 				// po y - 4 - only  overlapped.x1 available
 				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
-
 				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// z -> 1 -> only x and y overlaps
@@ -948,7 +915,6 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 
 				// po y - 6 - only  overlapped.x1 available
 				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
-
 				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				// z -> 2 -> only x and y overlaps
