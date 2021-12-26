@@ -56,7 +56,7 @@ func parseInput(lines []string) (instrCuboids []InstructionCuboid) {
 	return
 }
 
-const inputPath = "../input0.txt"
+const inputPath = "../input.txt"
 
 type InstructionCuboid struct {
 	on     bool
@@ -308,13 +308,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTop {
 
 				// by y
-				diff1 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff2 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 
 				// by z
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 			}
 
 			// 3 diffs
@@ -322,13 +321,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffBottom {
 
 				// 2 by Y
-				diff1 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff2 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// 1 by z
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 			}
 
 			// 5 diffs
@@ -336,15 +334,13 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTopBottom {
 
 				// 3 by Y
-				diff1 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff2 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				// 2 by z
 				diff4 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff4, diff5}
 			}
 		}
 
@@ -364,13 +360,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTop {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
 
 				// 1 combination for zNoOverlap s y1
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 			}
 
 			// 3 diffs
@@ -378,13 +373,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffBottom {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
+				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
 
 				// 1 combination for zNoOverlap s y1
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 			}
 
 			// 5 diffs
@@ -392,15 +386,13 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTopBottom {
 
 				// 3 combination for y1noLT
-				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
 
 				// 2 combination for overlapped.y1
 				diff4 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff4, diff5}
 			}
 		}
 
@@ -423,17 +415,15 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 
 				// should be 5 diffs
 				// all combinations for y1nolT and y2nolB with zol and no t
-				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
 
-				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 
 				// last combination
 
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff3, diff5}
 			}
 
 			// 5 diffs
@@ -443,17 +433,14 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 
 				// should be 5 diffs
 				// all combinations for y1nolT and y2nolB with zol and no t
-				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-
-				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
+				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
+				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// last combination
 
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff2, diff4, diff5}
 			}
 
 			// 8 diffs
@@ -463,21 +450,16 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				// 8 combinations basically
 
 				// pochvame s y1nolb
-				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff1 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
 				// sled tova y1nolT
-				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff4 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				//sega e s dvete sredni na z1 pri overlap
 
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff8 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8}
+				return []Cuboid{diff1, diff4, diff7, diff8}
 			}
 		}
 	}
@@ -556,10 +538,7 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTop {
 
 				// 1 po x
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff3 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, ol.y1, dTy2, ol.z1, dTz2}
 
 				// 2. po y
 				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
@@ -568,7 +547,7 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff1, diff5, diff6, diff7}
 
 			}
 
@@ -576,10 +555,7 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffBottom {
 
 				// 1 po x
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
-				diff3 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff2 := Cuboid{dTx1, dTx2, ol.y1, dTy2, dBz1, ol.z2}
 
 				// 2. po y
 				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
@@ -588,7 +564,7 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff2, diff5, diff6, diff7}
 
 			}
 
@@ -597,24 +573,16 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTopBottom {
 
 				// 1 po x -> 6 x1nolT is fixed
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff4 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, ol.y1, dTy2, dBz1, dTz2}
 
 				// 2. po y -> 3 y1nolT is fixed
-				diff7 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff9 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff7 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				// 3. po z -> imame 2
 				diff10 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff10, diff11}
 
 			}
 		}
@@ -626,32 +594,27 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zNoDiff {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
+				diff2 := Cuboid{dTx1, dTx2, dBy1, ol.y2, ol.z1, ol.z2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff2, diff3}
 
 			}
 
 			// 7
 			if zDiffTop {
 				// 1 po x
-				diff3 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
-				diff1 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff3 := Cuboid{dTx1, dTx2, dBy1, ol.y2, ol.z1, dTz2}
 
 				// 2. po y
-				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff6 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff3, diff5, diff7}
 
 			}
 
@@ -660,19 +623,15 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				// the same as before
 
 				// 1 po x
-				diff1 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff4 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
+				diff1 := Cuboid{dTx1, dTx2, dBy1, ol.y2, dBz1, ol.z2}
 
 				// 2. po y
-				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff6 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
+				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff1, diff5, diff7}
 
 			}
 
@@ -680,24 +639,16 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTopBottom {
 
 				// 1 po x -> 6 x1nolT is fixed
-				diff1 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
-				diff4 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, dBy1, ol.y2, dBz1, dTz2}
 
 				// 2. po y -> 3 y1nolT is fixed
-				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff8 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
 
 				// 3. po z -> imame 2
 				diff10 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff10, diff11}
 
 			}
 		}
@@ -709,91 +660,58 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zNoDiff {
 
 				// po x - 3
-				diff1 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dTx1, dTx2, dBy1, dTy2, ol.z1, ol.z2}
 				// po y - 2
 				diff4 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 				// z -> nqma zashtoto e sashtoto
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff4, diff5}
 			}
 
 			// 11
 			if zDiffTop {
 
 				// po x - 6
-				diff1 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff6 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, dBy1, dTy2, ol.z1, dTz2}
 				// po y - 4 - only  overlapped.x1 available
-				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
-				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
+				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 				// z -> 1 -> only x and y overlaps
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff8, diff11}
 
 			}
 
 			// 11
 			if zDiffBottom {
 				// po x - 6
-				diff1 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
-				diff4 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dTx1, dTx2, dBy1, dTy2, dBz1, ol.z2}
 				// po y - 4 - only  overlapped.x1 available
-				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
+				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
+				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// z -> 1 -> only x and y overlaps
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff8, diff11}
 			}
 
 			// 17
 			if zDiffTopBottom {
 				// po x - 9 - all y and all z
-				diff1 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
-				diff4 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff7 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
-				diff8 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff9 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dTx1, dTx2, dBy1, dTy2, dBz1, dTz2}
 
 				// po y - 6 - only  overlapped.x1 available
-				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff11 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff12 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
-				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff14 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff15 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
+				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				// z -> 2 -> only x and y overlaps
 				diff16 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff17 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8, diff9, diff10,
-					diff11, diff12, diff13, diff14, diff15,
-					diff16, diff17}
+				return []Cuboid{diff1, diff10, diff13, diff16, diff17}
 			}
 		}
 	}
@@ -815,41 +733,37 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTop {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, dTz2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 			}
 
 			// 3 diff.a
 			if zDiffBottom {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
+				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, ol.z2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff2, diff3}
 			}
 
 			// 5 diff.a
 			if zDiffTopBottom {
 
 				// 3 combination for y1noLT
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dTz2}
 				// 2 combination for overlapped.y1
 
 				diff4 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff4, diff5}
 			}
 		}
 
@@ -859,13 +773,12 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zNoDiff {
 
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, dTy2, ol.z1, ol.z2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff1, diff3}
 
 			}
 
@@ -874,62 +787,46 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 				// should be A LOT
 
 				// 1 po x
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, dTy2, ol.z1, dTz2}
 
 				// 2. po y
-				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff1, diff5, diff7}
 
 			}
 
 			// 7
 			if zDiffBottom {
 				// 1 po x
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff2 := Cuboid{dBx1, dBx2, ol.y1, dTy2, dBz1, ol.z2}
 
 				// 2. po y
-				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
+				diff6 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff2, diff6, diff7}
 
 			}
 
 			// 11 cases
 			if zDiffTopBottom {
 				// 1 po x -> 6 x1nolT is fixed
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff4 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, dTy2, dBz1, dTz2}
 
 				// 2. po y -> 3 y1nolT is fixed
-				diff7 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff9 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff7 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				// 3. po z -> imame 2
 				diff10 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff10, diff11}
 
 			}
 		}
@@ -939,51 +836,42 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			// 3
 			if zNoDiff {
 				// 2 combinations for yNoOverlap - outer if
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
+				diff2 := Cuboid{dBx1, dBx2, dBy1, ol.y2, ol.z1, ol.z2}
 				// 1 combination for zNoOverlap s y1
 
 				diff3 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3}
+				return []Cuboid{diff2, diff3}
 
 			}
 
 			// 7
 			if zDiffTop {
 				// 1 po x
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, ol.y2, ol.z1, dTz2}
 
 				// 2. po y
-				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff6 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff1, diff5, diff7}
 
 			}
 
 			// 7
 			if zDiffBottom {
 				// 1 po x
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff4 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, ol.y2, dBz1, ol.z2}
 
 				// 2. po y
-				diff6 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
+				diff6 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
 
 				// 3. po z posledno
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6, diff7}
+				return []Cuboid{diff1, diff6, diff7}
 
 			}
 
@@ -991,24 +879,16 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffTopBottom {
 
 				// 1 po x -> 6 x1nolT is fixed
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff5 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff4 := Cuboid{dBx1, dBx2, dBy1, ol.y2, dBz1, dTz2}
 
 				// 2. po y -> 3 y1nolT is fixed
-				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff8 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
 
 				// 3. po z -> imame 2
 				diff10 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff4, diff7, diff10, diff11}
 
 			}
 		}
@@ -1019,36 +899,28 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			// 5
 			if zNoDiff {
 				// po x - 3
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, ol.z1, ol.z2}
 				// po y - 2
 				diff4 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 				// z -> nqma zashtoto e sashtoto
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff4, diff5}
 			}
 
 			// 11
 			if zDiffTop {
 				// po x - 6
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, ol.z1, dTz2}
+
 				// po y - 4 - only  overlapped.x1 available
-				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
-				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
+
+				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 				// z -> 1 -> only x and y overlaps
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff8, diff11}
 
 			}
 
@@ -1056,54 +928,34 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			if zDiffBottom {
 
 				// po x - 6
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, dBz1, ol.z2}
 				// po y - 4 - only  overlapped.x1 available
-				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
+				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
+
+				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// z -> 1 -> only x and y overlaps
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff7, diff8, diff11}
 			}
 
 			// 17
 			if zDiffTopBottom {
 
 				// po x - 9 - all y and all z
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff4 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff7 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff8 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff9 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, dBz1, dTz2}
 
 				// po y - 6 - only  overlapped.x1 available
-				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff11 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff12 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
-				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff14 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff15 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
+
+				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
 				// z -> 2 -> only x and y overlaps
 				diff16 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff17 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5,
-					diff6, diff7, diff8, diff9, diff10, diff11,
-					diff12, diff13, diff14, diff15, diff16, diff17}
+				return []Cuboid{diff1, diff10, diff13, diff16, diff17}
 			}
 		}
 	}
@@ -1128,49 +980,40 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			// 5
 			if zDiffTop {
 				// parvo po x -> 4
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff4 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, dTz2}
+				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, dTz2}
 
 				// posle po z because y is stationary
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff2, diff5}
 			}
 
 			// 5
 			if zDiffBottom {
 
 				// parvo po x -> 4
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, ol.z2}
+				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, ol.z2}
 
 				// posle po z because y is stationary
 				diff5 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff2, diff5}
 			}
 
 			// 8
 			if zDiffTopBottom {
 
 				// parvo po x -> 6
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dTz2}
+				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dTz2}
 
 				// posle po z -> 2 because y is stationary
 				diff7 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff8 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8}
+				return []Cuboid{diff1, diff2, diff7, diff8}
 			}
 		}
 
@@ -1180,99 +1023,62 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			// 5
 			if zNoDiff {
 				// parvo po x -> 4
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, dTy2, ol.z1, ol.z2}
+				diff2 := Cuboid{dTx1, dTx2, ol.y1, dTy2, ol.z1, ol.z2}
 
 				// posle po y -> 1
 				diff5 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff1, diff2, diff5}
 			}
 
 			// 11
 			if zDiffTop {
 
 				// parvo po x -> 8
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff7 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff8 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, dTy2, ol.z1, dTz2}
+				diff5 := Cuboid{dTx1, dTx2, ol.y1, dTy2, ol.z1, dTz2}
 
 				// posle po y -> 2
-
-				diff9 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff9 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 
 				// posle po z -> 1
-
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff1, diff5, diff9, diff11}
 			}
 
 			// 11
 			if zDiffBottom {
 
 				// parvo po x -> 8
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff7 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff8 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
+				diff2 := Cuboid{dBx1, dBx2, ol.y1, dTy2, dBz1, ol.z2}
+				diff5 := Cuboid{dTx1, dTx2, ol.y1, dTy2, dBz1, ol.z2}
 
 				// posle po y -> 2
-
-				diff9 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
+				diff10 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 
 				// posle po z -> 1
-
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff2, diff5, diff10, diff11}
 			}
 
 			// 17
 			if zDiffTopBottom {
 
 				// parvo po x -> 12
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff4 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff5 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
-
-				diff7 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff8 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff9 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff10 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
-				diff11 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff12 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, ol.y1, dTy2, dBz1, dTz2}
+				diff7 := Cuboid{dTx1, dTx2, ol.y1, dTy2, dBz1, dTz2}
 
 				// posle po y - 3
+				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dTz2}
 
-				diff13 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff14 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff15 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
 				// nakraq po z - 2
 				diff16 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff17 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11, diff12, diff13,
-					diff14, diff15, diff16, diff17}
+				return []Cuboid{diff1, diff7, diff13, diff16, diff17}
 			}
 		}
 
@@ -1282,99 +1088,61 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			// 5
 			if zNoDiff {
 				// parvo po x -> 4
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
+				diff3 := Cuboid{dBx1, dBx2, dBy1, ol.y2, ol.z1, ol.z2}
+				diff4 := Cuboid{dTx1, dTx2, dBy1, ol.y2, ol.z1, ol.z2}
 
 				// posle po y -> 1
 				diff5 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5}
+				return []Cuboid{diff3, diff4, diff5}
 			}
 
 			// 11
 			if zDiffTop {
 
 				// parvo po x -> 8
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff3 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff7 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff8 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
+				diff3 := Cuboid{dBx1, dBx2, dBy1, ol.y2, ol.z1, dTz2}
+				diff5 := Cuboid{dTx1, dTx2, dBy1, ol.y2, ol.z1, dTz2}
 
 				// posle po y -> 2
-
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
 
 				// posle po z -> 1
-
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff3, diff5, diff9, diff11}
 			}
 
 			// 11
 			if zDiffBottom {
 
 				// parvo po x -> 8
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff7 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff8 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
+				diff3 := Cuboid{dBx1, dBx2, dBy1, ol.y2, dBz1, ol.z2}
+				diff7 := Cuboid{dTx1, dTx2, dBy1, ol.y2, dBz1, ol.z2}
 
 				// posle po y -> 2
-
-				diff9 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
+				diff10 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
 
 				// posle po z -> 1
-
 				diff11 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11}
+				return []Cuboid{diff3, diff7, diff10, diff11}
 			}
 
 			// 17
 			if zDiffTopBottom {
 
 				// parvo po x -> 12
-				diff1 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff5 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-
-				diff7 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff8 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff9 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff10 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff11 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff12 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
+				diff4 := Cuboid{dBx1, dBx2, dBy1, ol.y2, dBz1, dTz2}
+				diff7 := Cuboid{dTx1, dTx2, dBy1, ol.y2, dBz1, dTz2}
 
 				// posle po y - 3
-
-				diff13 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff14 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff15 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
+				diff13 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dTz2}
 				// nakraq po z - 2
 				diff16 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff17 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11, diff12, diff13,
-					diff14, diff15, diff16, diff17}
+				return []Cuboid{diff4, diff7, diff13, diff16, diff17}
 			}
 		}
 
@@ -1384,125 +1152,66 @@ func diffWithRight(left Cuboid, right Cuboid) (diffRights []Cuboid) {
 			// 8
 			if zNoDiff {
 				// po x - 6
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff5 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, ol.z1, ol.z2}
+				diff4 := Cuboid{dTx1, dTx2, dBy1, dTy2, ol.z1, ol.z2}
 
 				// po y - 2
 				diff7 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
 				diff8 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8}
+				return []Cuboid{diff1, diff4, diff7, diff8}
 			}
 
 			// 17
 			if zDiffTop {
 
 				// po x - 12
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
-
-				diff7 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff8 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff9 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff10 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
-				diff11 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff12 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, dBy1, dTy2, ol.z1, dTz2}
+				diff7 := Cuboid{dTx1, dTx2, dBy1, dTy2, ol.z1, dTz2}
 
 				// po y - 4
-				diff13 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff14 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
-				diff15 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff16 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff13 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, dTz2}
+				diff15 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, dTz2}
 				// po z 1
 				diff17 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11, diff12, diff13,
-					diff14, diff15, diff16, diff17}
+				return []Cuboid{diff1, diff7, diff13, diff15, diff17}
 			}
 
 			// 17
 			if zDiffBottom {
 
 				// po x - 12
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
+				diff4 := Cuboid{dBx1, dBx2, dBy1, dTy2, dBz1, ol.z2}
+				diff7 := Cuboid{dTx1, dTx2, dBy1, dTy2, dBz1, ol.z2}
 
-				diff7 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff8 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff9 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff10 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff11 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff12 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
 				// po y - 4
 
-				diff13 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff14 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff15 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff16 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
+				diff14 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, ol.z2}
+				diff16 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, ol.z2}
 				// po z 1
 				diff17 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11, diff12, diff13,
-					diff14, diff15, diff16, diff17}
+				return []Cuboid{diff4, diff7, diff14, diff16, diff17}
 			}
 
 			// 26
 			if zDiffTopBottom {
 
 				// po x - 18
-				diff1 := Cuboid{dBx1, dBx2, dBy1, dBy2, dBz1, dBz2}
-				diff2 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff3 := Cuboid{dBx1, dBx2, dTy1, dTy2, dBz1, dBz2}
-				diff4 := Cuboid{dBx1, dBx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff5 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff6 := Cuboid{dBx1, dBx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff7 := Cuboid{dBx1, dBx2, dBy1, dBy2, dTz1, dTz2}
-				diff8 := Cuboid{dBx1, dBx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff9 := Cuboid{dBx1, dBx2, dTy1, dTy2, dTz1, dTz2}
-
-				diff10 := Cuboid{dTx1, dTx2, dBy1, dBy2, dBz1, dBz2}
-				diff11 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dBz1, dBz2}
-				diff12 := Cuboid{dTx1, dTx2, dTy1, dTy2, dBz1, dBz2}
-				diff13 := Cuboid{dTx1, dTx2, dBy1, dBy2, ol.z1, ol.z2}
-				diff14 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, ol.z1, ol.z2}
-				diff15 := Cuboid{dTx1, dTx2, dTy1, dTy2, ol.z1, ol.z2}
-				diff16 := Cuboid{dTx1, dTx2, dBy1, dBy2, dTz1, dTz2}
-				diff17 := Cuboid{dTx1, dTx2, ol.y1, ol.y2, dTz1, dTz2}
-				diff18 := Cuboid{dTx1, dTx2, dTy1, dTy2, dTz1, dTz2}
+				diff1 := Cuboid{dBx1, dBx2, in.y1, in.y2, in.z1, in.z2}
+				diff10 := Cuboid{dTx1, dTx2, in.y1, in.y2, in.z1, in.z2}
 
 				// po y - 6
 
-				diff19 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dBz1, dBz2}
-				diff20 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, ol.z1, ol.z2}
-				diff21 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, dTz1, dTz2}
-
-				diff22 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dBz1, dBz2}
-				diff23 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, ol.z1, ol.z2}
-				diff24 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, dTz1, dTz2}
+				diff19 := Cuboid{ol.x1, ol.x2, dBy1, dBy2, in.z1, in.z2}
+				diff22 := Cuboid{ol.x1, ol.x2, dTy1, dTy2, in.z1, in.z2}
 
 				// po y - 2
 				diff25 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dBz1, dBz2}
 				diff26 := Cuboid{ol.x1, ol.x2, ol.y1, ol.y2, dTz1, dTz2}
 
-				return []Cuboid{diff1, diff2, diff3, diff4, diff5, diff6,
-					diff7, diff8, diff9, diff10, diff11, diff12, diff13,
-					diff14, diff15, diff16, diff17, diff18, diff19, diff20,
-					diff21, diff22, diff23, diff24, diff25, diff26}
+				return []Cuboid{diff1, diff10, diff19, diff22, diff25, diff26}
 			}
 		}
 	}
