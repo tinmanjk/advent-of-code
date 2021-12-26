@@ -56,7 +56,7 @@ func parseInput(lines []string) (instrCuboids []InstructionCuboid) {
 	return
 }
 
-const inputPath = "../input.txt"
+const inputPath = "../input0.txt"
 
 type InstructionCuboid struct {
 	on     bool
@@ -166,7 +166,7 @@ func part2(instrCuboids []InstructionCuboid) (result uint64) {
 
 	// just one on
 	if len(instrCuboids) == 1 {
-		return calculateVolume(instrCuboids[0].cuboid)
+		return instrCuboids[0].cuboid.calculateVolume()
 	}
 
 	// guaranteed first on and at least two
@@ -208,7 +208,7 @@ func part2(instrCuboids []InstructionCuboid) (result uint64) {
 	}
 
 	for cuboid := range nonOverlappingCuboids {
-		volume := calculateVolume(cuboid)
+		volume := cuboid.calculateVolume()
 		result += volume
 	}
 
@@ -1260,7 +1260,7 @@ func createOverlapCuboid(first Cuboid, second Cuboid) (overlapped *Cuboid) {
 	return overlapped
 }
 
-func calculateVolume(cuboid Cuboid) (volume uint64) {
+func (cuboid *Cuboid) calculateVolume() (volume uint64) {
 	x1x2 := uint64(math.Abs(float64(cuboid.x2)-float64(cuboid.x1))) + 1
 	y1y2 := uint64(math.Abs(float64(cuboid.y2)-float64(cuboid.y1))) + 1
 	z1z2 := uint64(math.Abs(float64(cuboid.z2)-float64(cuboid.z1))) + 1
