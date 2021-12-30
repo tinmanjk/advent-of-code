@@ -10,20 +10,20 @@ import (
 
 func main() {
 	lines := inputParse.ReturnSliceOfLinesFromFile(inputPath)
-	fixedBoard := parseInput(lines)
+	board := parseInput(lines)
 
 	// part 1
-	result := findResult(fixedBoard)
+	result := findResult(board)
 	fmt.Println(result)
 	// part 2
 	// result := findResult(cuboids)
 	// fmt.Println("Part 1:", result)
 }
 
-func parseInput(lines []string) (board [3][13]rune) {
+func parseInput(lines []string) (board [5][13]rune) {
 
 	// 3 /13 board
-	board = [3][13]rune{}
+	board = [5][13]rune{}
 	for i := 1; i < len(lines)-1; i++ {
 		line := lines[i]
 		for j := 0; j < len(line); j++ {
@@ -70,7 +70,7 @@ func isInCorrectRoom(amph *Amphipod) bool {
 // ### STATE
 type State struct {
 	amphis      []*Amphipod
-	board       [3][13]rune // array to be used as key in hashmap
+	board       [5][13]rune // array to be used as key in hashmap
 	parentState *State
 	finished    bool
 	score       int
@@ -80,11 +80,10 @@ func (state State) checkStateFinished() bool {
 
 	for col := 3; col <= 9; col += 2 {
 		room := fmt.Sprintf("%c", ('A' + (col-3)/2))
-		for row := 1; row <= 2; row++ {
+		for row := 1; row <= 4; row++ {
 			if room != string(state.board[row][col]) {
 				return false
 			}
-
 		}
 	}
 
@@ -121,12 +120,12 @@ func (state State) printState() {
 	fmt.Println(" ")
 }
 
-func buildRootState(matrix [3][13]rune) (rootState State) {
+func buildRootState(matrix [5][13]rune) (rootState State) {
 	rootState = State{}
 	rootState.amphis = []*Amphipod{}
 	rootState.board = matrix
 	for j := 3; j <= 9; j += 2 {
-		for i := 1; i <= 2; i++ {
+		for i := 1; i <= 4; i++ {
 			a := Amphipod{i, j, string(matrix[i][j]), 0}
 			rootState.amphis = append(rootState.amphis, &a)
 		}
@@ -137,9 +136,9 @@ func buildRootState(matrix [3][13]rune) (rootState State) {
 
 // </## STATE
 
-func findResult(fixedBoard [3][13]rune) (minScore int) {
+func findResult(fixedBoard [5][13]rune) (minScore int) {
 
-	boardScores := map[[3][13]rune]int{}
+	boardScores := map[[5][13]rune]int{}
 	boardScores[fixedBoard] = 0
 
 	minScore = math.MaxInt32
@@ -168,7 +167,7 @@ func findResult(fixedBoard [3][13]rune) (minScore int) {
 
 		// board - state
 		// if the board is new it can be overriden
-		statesToPush := map[[3][13]rune]*State{}
+		statesToPush := map[[5][13]rune]*State{}
 		for _, st := range nextStates {
 			if alreadyIn, ok := statesToPush[st.board]; ok {
 				if st.score < alreadyIn.score {
@@ -187,6 +186,7 @@ func findResult(fixedBoard [3][13]rune) (minScore int) {
 					stack.Push(state)
 				}
 
+				// if not dont bother working on it
 			} else {
 				boardScores[state.board] = state.score
 				stack.Push(state)
@@ -217,70 +217,95 @@ func generateAllPossibleNextStates(state *State, maxScore int) (nextStates []*St
 				destCol = 7
 			case "D":
 				destCol = 9
-
 			}
 
-			// check topspot destination
+			// check if full
 			if state.board[1][destCol] != '.' {
 				continue
 			}
 
-			// prefer bottom to leave space
-			if state.board[2][destCol] == '.' {
-				// can we get there though
-				// pathfree
-				destRow := 2
-				freePath := isPathFree(a, state.board, destRow, destCol)
+			aType := rune(a.Type[0])
+			canMoveIntoRoom := false
+			var destRow int
 
-				if freePath {
+			switch {
+			case state.board[2][destCol] == '.' &&
+				state.board[3][destCol] == '.' &&
+				state.board[4][destCol] == '.':
+				// go to bottom
+				canMoveIntoRoom = true
+				destRow = 4
+			case state.board[2][destCol] == '.' &&
+				state.board[3][destCol] == '.' &&
+				state.board[4][destCol] == aType:
+				// go to third spot
+				canMoveIntoRoom = true
+				destRow = 3
+			case state.board[2][destCol] == '.' &&
+				state.board[3][destCol] == aType &&
+				state.board[4][destCol] == aType:
+				// go to third spot
+				canMoveIntoRoom = true
+				destRow = 2
+			case state.board[2][destCol] == aType &&
+				state.board[3][destCol] == aType &&
+				state.board[4][destCol] == aType:
+				// go to third spot
+				canMoveIntoRoom = true
+				destRow = 1
+			}
 
-					newState := createNewStateForMove(state, a, destRow, destCol)
-					newState.score = newState.calculateScore()
-					if newState.score < maxScore {
-						nextStates = append([]*State{&newState}, nextStates...)
-					}
-					// if a.Type == "C" {
-					// 	newState.printState()
-					// }
-					continue
+			if !canMoveIntoRoom {
+				continue
+			}
+
+			freePath := isPathFree(a, state.board, destRow, destCol)
+			if freePath {
+				newState := createNewStateForMove(state, a, destRow, destCol)
+				newState.score = newState.calculateScore()
+				if newState.score < maxScore {
+					nextStates = append([]*State{&newState}, nextStates...)
 				}
 			}
-			if state.board[2][destCol] == rune(a.Type[0]) {
-				// can we get there though
 
-				// move to the top spot
-				destRow := 1
-				freePath := isPathFree(a, state.board, destRow, destCol)
-				if freePath {
-					newState := createNewStateForMove(state, a, destRow, destCol)
-					newState.score = newState.calculateScore()
-					if newState.score < maxScore {
-						nextStates = append([]*State{&newState}, nextStates...)
-
-					}
-					// move to the bottom spot
-					continue
-				}
-
+		case 4:
+			if state.board[3][a.col] != '.' { // cant move
+				continue
 			}
+			fallthrough
+		case 3:
+			if state.board[2][a.col] != '.' { // cant move
+				continue
+			}
+			fallthrough
 		case 2: // room bottom spot
 			if state.board[1][a.col] != '.' { // cant move
 				continue
 			}
-
 			fallthrough // same left/right hallway mechanics
 		case 1: // room top spot -> go into the hallway left or right
 
+			// need to move
 			if isInCorrectRoom(a) {
-				if a.row == 2 {
-					continue
-				} // the bottom element stays
-				if a.row == 1 { // top element
-					// the one beneath is the same
-					if string(state.board[a.row+1][a.col]) == a.Type {
+				switch a.row {
+				case 4:
+					continue // bottom in its room
+				case 3:
+					// one beneath is the same
+					if string(state.board[4][a.col]) == a.Type {
 						continue
 					}
-					// else on the move
+				case 2:
+					if string(state.board[4][a.col]) == a.Type &&
+						string(state.board[3][a.col]) == a.Type {
+						continue
+					}
+				case 1:
+					if string(state.board[4][a.col]) == a.Type &&
+						string(state.board[3][a.col]) == a.Type &&
+						string(state.board[2][a.col]) == a.Type {
+						continue
+					}
 				}
 			}
 
@@ -331,7 +356,7 @@ func generateAllPossibleNextStates(state *State, maxScore int) (nextStates []*St
 	return
 }
 
-func isPathFree(a *Amphipod, board [3][13]rune, destRow, destCol int) bool {
+func isPathFree(a *Amphipod, board [5][13]rune, destRow, destCol int) bool {
 	if a.col < destCol { // go right
 		for col := a.col + 1; col < destCol; col++ { // < because guaranteed free spot in front
 			if board[a.row][col] != '.' {
@@ -372,7 +397,7 @@ func createNewStateForMove(oldState *State, aToMove *Amphipod,
 		newAmphis = append(newAmphis, &newAmphi)
 	}
 
-	var newBoard [3][13]rune
+	var newBoard [5][13]rune
 	for i := range oldState.board {
 		for j := 0; j < 13; j++ {
 			newBoard[i][j] = oldState.board[i][j]
