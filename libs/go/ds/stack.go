@@ -4,24 +4,23 @@ import (
 	"errors"
 )
 
-type Stack []rune
-
-func (s *Stack) Push(v rune) {
-	*s = append(*s, v)
+type Stack struct {
+	backingStore []interface{} // default is empty
 }
 
-func (s *Stack) Pop() (result rune, err error) {
+func (s *Stack) Push(toEnqueue interface{}) {
+	s.backingStore = append(s.backingStore, toEnqueue)
+}
 
+func (s *Stack) Pop() (interface{}, error) {
 	if s.IsEmpty() {
-		return result, errors.New("empty stack")
+		return -1, errors.New("empty queue")
 	}
-
-	res := (*s)[len(*s)-1]
-	*s = (*s)[:len(*s)-1]
-	return res, nil
+	result := s.backingStore[len(s.backingStore)-1]
+	s.backingStore = s.backingStore[:len(s.backingStore)-1]
+	return result, nil
 }
 
-func (s *Stack) IsEmpty() bool {
-
-	return len(*s) < 1
+func (q *Stack) IsEmpty() bool {
+	return len(q.backingStore) == 0
 }

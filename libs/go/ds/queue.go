@@ -4,16 +4,16 @@ import (
 	"errors"
 )
 
-type MyQueue struct {
-	backingStore []int // default is empty
+type Queue struct {
+	backingStore []interface{} // default is empty
 }
 
-func (q *MyQueue) Enqueue(toEnqueue int) {
+func (q *Queue) Enqueue(toEnqueue interface{}) {
 	q.backingStore = append(q.backingStore, toEnqueue)
 }
 
-func (q *MyQueue) Dequeue() (int, error) {
-	if q.IsEmtpy() {
+func (q *Queue) Dequeue() (interface{}, error) {
+	if q.IsEmpty() {
 		return -1, errors.New("empty queue")
 	}
 	result := q.backingStore[0]
@@ -21,6 +21,6 @@ func (q *MyQueue) Dequeue() (int, error) {
 	return result, nil
 }
 
-func (q *MyQueue) IsEmtpy() bool {
+func (q *Queue) IsEmpty() bool {
 	return len(q.backingStore) == 0
 }

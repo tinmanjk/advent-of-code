@@ -89,7 +89,8 @@ func findResult(inputData []string, partOne bool) (result int) {
 		totalScore := 0
 		for !closingRunes.IsEmpty() {
 			closingRune, _ := closingRunes.Pop()
-			totalScore = 5*totalScore + incompleteRuneToScore[closingRune]
+			closingRuneConverted := closingRune.(rune)
+			totalScore = 5*totalScore + incompleteRuneToScore[closingRuneConverted]
 		}
 		scores = append(scores, totalScore)
 	}
